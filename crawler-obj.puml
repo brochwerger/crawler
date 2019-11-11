@@ -1,0 +1,14 @@
+@startuml
+object Crawler
+object URLHandler
+object emailHandler
+object urlQueue
+object emailQueue
+
+Crawler o-- "n" URLHandler
+Crawler o--  emailHandler
+Crawler o-- urlQueue
+Crawler o-- emailQueue
+emailHandler o-- emailQueue
+URLHandler o-- urlQueue
+@enduml
