@@ -1,0 +1,61 @@
+version: '3.7'
+
+services:
+
+  c1:
+    image: nginx
+
+    networks:
+      - test
+
+    volumes:
+      - /home/benny/PycharmProjects/crawler/tests/c1.html:/usr/share/nginx/html/index.html
+
+#    ports:
+#      - "81:80"
+
+  c2:
+    image: nginx
+
+    networks:
+      - test
+
+    volumes:
+      - /home/benny/PycharmProjects/crawler/tests/c2.html:/usr/share/nginx/html/index.html
+
+#    ports:
+#      - "82:80"
+
+  c3:
+    image: nginx
+
+    networks:
+      - test
+
+    volumes:
+      - /home/benny/PycharmProjects/crawler/tests/c1.html:/usr/share/nginx/html/index.html
+
+#    ports:
+#      - "83:80"
+
+#  crawler:
+#    image: crawler
+#
+#    networks:
+#      - test
+#
+##    volumes:
+##     - /home/benny/PycharmProjects/crawler/tests:/tests
+#
+#    deploy:
+#      restart_policy:
+#        condition: none
+#
+#    command:
+##      ["-f", "/tests/c1.html"]
+#      ["-f", "http://c1"]
+
+networks:
+  test:
+    driver: overlay
+    attachable: true
