@@ -32,3 +32,14 @@ Which will install the BeatifulSoup version 4 library needed to extract links fr
 `docker run -ti crawler -f <filename> [-n <number-of-threads>]`
  
 ###### Option 2: Python application 
+
+
+#### Test Suite
+
+`TESTS_DIR=$(pwd) docker stack deploy -c circular.yml c`
+
+#### Design
+
+![Components of solution](design/diagrams/crawler_obj.png)
+
+![Flowchart of URL handler](design/diagrams/urlhandler.png)
