@@ -5,19 +5,19 @@ start
 if (url is valid) then (yes)
 if (url has changed) then (yes)
   :download url into HTML file;
-  :compute hash of file;
-  :add [url, hash(file)] to handled urls;
-  :parse HTML file;
+  ':compute hash of file;
+  :Add to <list> of processed URLs;
+  :Parse HTML file;
   repeat
     if (link is email) then (yes)
       :add link to email-queue;
     else (no)
       :add link to url-queue;
     endif
-  repeat while (there are links in parsed file)
+  repeat while (while there are links in parsed file)
 endif
 else (no)
- :Raise exception;
+ :Add to <list> of rejected URLs;
 endif
 stop
 @enduml
