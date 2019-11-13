@@ -2,21 +2,24 @@
 start
 
 :Get URL from url-queue;
-if (url is valid) then (yes)
-if (url has changed) then (yes)
-  :download url into HTML file;
-  ':compute hash of file;
-  :Add to <list> of processed URLs;
-  :Parse HTML file;
-  repeat
-    :get href from file;
-    if (href is email) then (yes)
-      :add href to email-queue;
+#pink:Validate URL;
+if (valid?) then (yes)
+    #pink:Check URL's history;
+    if (new or changed) then (yes)
+      :download url into HTML file;
+      ':compute hash of file;
+      :Add to <list> of processed URLs;
+      :Parse HTML file;
+      repeat
+        :get href from file;
+        if (href is email) then (yes)
+          :add href to email-queue;
+        else (no)
+          :add href to url-queue;
+        endif
+      repeat while (while there are href in parsed file)
     else (no)
-      :add href to url-queue;
     endif
-  repeat while (while there are href in parsed file)
-endif
 else (no)
  :Add to <list> of rejected URLs;
 endif
