@@ -1,0 +1,54 @@
+@startuml
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/release/1-0/C4_Component.puml
+
+'LAYOUT_AS_SKETCH()
+'LAYOUT_WITH_LEGEND()
+
+Boundary(swc, 'Simple Web Crawler') {
+
+    Container(crawler, "crawler", "Crawler Control")
+    Container(uh1, "URL Handler 1", "1/n")
+    Container(uh2, "URL Handler 2", "2/n")
+    Container(uhn, "URL Handler n", "n/n")
+
+    Container(emailHandler, "email Handler", "")
+
+    Component(emailQueue, "email queue", "Queue for unprocessed emails")
+    Component(urlQueue, "URL queue", "Queue for unprocessed URLs")
+
+    SystemDb(listOfprocessedUrls, "Processed URLs", "")
+    SystemDb(listOfRejectedUrls, "Rejected URLs", "")
+
+    SystemDb(listOfknownEmails, "Known emails", "")
+}
+
+System_Ext(urlfile, "URLs file", "[input]")
+System_Ext(emailfile, "email file", "[output]")
+
+Rel(crawler, urlQueue, "Put")
+Rel(crawler, urlfile, "Read")
+
+Rel(uh1, urlQueue, "Put/Get")
+Rel(uh2, urlQueue, "Put/Get")
+Rel(uhn, urlQueue, "Put/Get")
+
+Rel(uh1, emailQueue, "Put")
+Rel(uh2, emailQueue, "Put")
+Rel(uhn, emailQueue, "Put")
+
+
+listOfprocessedUrls <-- "Search/Append" uh1
+listOfprocessedUrls <-- "Search/Append" uh2
+listOfprocessedUrls <-- "Search/Append" uhn
+
+listOfRejectedUrls <-- uh1
+listOfRejectedUrls <-- uh2
+listOfRejectedUrls <-- uhn
+
+emailQueue --> emailHandler
+Rel(emailHandler,listOfknownEmails, "Search/Append")
+Rel(emailHandler,emailfile, "Append")
+
+
+@enduml
