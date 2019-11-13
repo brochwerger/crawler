@@ -1,7 +1,7 @@
 @startuml
 
 !includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/release/1-0/C4_Component.puml
-
+!includeurl https://raw.githubusercontent.com/ebbypeter/Archimate-PlantUML/master/Archimate.puml
 'LAYOUT_AS_SKETCH()
 'LAYOUT_WITH_LEGEND()
 
@@ -37,14 +37,22 @@ Rel(uh1, emailQueue, "Put")
 Rel(uh2, emailQueue, "Put")
 Rel(uhn, emailQueue, "Put")
 
+Rel_Serving_Up(uh1, listOfprocessedUrls, "Search/Append")
+Rel_Serving_Up(uh2, listOfprocessedUrls, "Search/Append")
+Rel_Serving_Up(uhn, listOfprocessedUrls, "Search/Append")
 
-listOfprocessedUrls <-- "Search/Append" uh1
-listOfprocessedUrls <-- "Search/Append" uh2
-listOfprocessedUrls <-- "Search/Append" uhn
+Rel_Serving_Up(uh1, listOfRejectedUrls, "Search/Append")
+Rel_Serving_Up(uh2, listOfRejectedUrls, "Search/Append")
+Rel_Serving_Up(uhn, listOfRejectedUrls, "Search/Append")
 
-listOfRejectedUrls <-- uh1
-listOfRejectedUrls <-- uh2
-listOfRejectedUrls <-- uhn
+'
+'listOfprocessedUrls <-- "Search/Append" uh1
+'listOfprocessedUrls <-- "Search/Append" uh2
+'listOfprocessedUrls <-- "Search/Append" uhn
+'
+'listOfRejectedUrls <-- uh1
+'listOfRejectedUrls <-- uh2
+'listOfRejectedUrls <-- uhn
 
 emailQueue --> emailHandler
 Rel(emailHandler,listOfknownEmails, "Search/Append")
