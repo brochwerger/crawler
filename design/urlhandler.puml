@@ -9,12 +9,13 @@ if (url has changed) then (yes)
   :Add to <list> of processed URLs;
   :Parse HTML file;
   repeat
-    if (link is email) then (yes)
-      :add link to email-queue;
+    :get href from file;
+    if (href is email) then (yes)
+      :add href to email-queue;
     else (no)
-      :add link to url-queue;
+      :add href to url-queue;
     endif
-  repeat while (while there are links in parsed file)
+  repeat while (while there are href in parsed file)
 endif
 else (no)
  :Add to <list> of rejected URLs;
