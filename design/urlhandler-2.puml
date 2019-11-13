@@ -1,0 +1,29 @@
+@startuml
+start
+
+:Get URL from url-queue;
+'#pink:Validate URL;
+if (valid?) then (yes)
+    '#pink:Check URL's history;
+    if (new or changed) then (yes)
+        if (is email ?) then (yes)
+            ':add href to email-queue;
+            :add to email file;
+        else (no)
+          :download url into HTML file;
+          ':compute hash of file;
+          ':Add to <list> of processed URLs;
+          :Parse HTML file;
+          repeat
+            :get href from file;
+            :add href to url-queue;
+          repeat while (while there are href in parsed file)
+        endif
+    else (no)
+    endif
+    : mark as not new;
+else (no)
+ :Add to <list> of rejected URLs;
+endif
+stop
+@enduml

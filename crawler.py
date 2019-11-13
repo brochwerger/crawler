@@ -2,6 +2,7 @@ import argparse
 import queue
 
 from urlhandler import URLHandler
+from worker import Worker
 
 usage = "USAGE: Required parameter: -f <filename> OR -u <URL>"
 
@@ -11,17 +12,22 @@ def crawler(args):
     emailqueue = queue.Queue()
 
     if args.url:
-        urlqueue.put([args.url, 1])
+        urlqueue.put([None, args.url, 1])
 
     if args.filename:
         with open(args.filename) as file:
             for url in file:
-                urlqueue.put([url, 1])
+                urlqueue.put([None, url, 1])
 
-    u = URLHandler(urlqueue, emailqueue, args.maxdepth if args.maxdepth else -1)
-    u.start()
+    # u = URLHandler(urlqueue, emailqueue, args.maxdepth if args.maxdepth else -1)
+    # u.start()
+    #
+    # u.join()
 
-    u.join()
+    w = Worker(urlqueue, emailqueue, args.maxdepth if args.maxdepth else -1)
+    w.start()
+    w.join()
+
 
 if __name__ == "__main__":
 
