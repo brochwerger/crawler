@@ -15,14 +15,14 @@ Application_Process(emailHandler, "email Handler")
 Technology_CommunicationNetwork(emailQueue, "email queue")
 Technology_CommunicationNetwork(urlQueue, "URL queue")
 
-Business_Collaboration(listOfprocessedUrls, "Processed URLs")
-Business_Collaboration(listOfRejectedUrls, "Rejected URLs")
-Business_Collaboration(listOfknownEmails, "Known emails")
+Business_Object(listOfprocessedUrls, "Processed URLs")
+Business_Object(listOfRejectedUrls, "Rejected URLs")
+Business_Object(listOfknownEmails, "Known emails")
 
 }
 
-Strategy_Resource(urlfile, "URLs input file")
-Strategy_Resource(emailfile, "email output file")
+Technology_Artifact(urlfile, "URLs input file")
+Technology_Artifact(emailfile, "email output file")
 
 Rel_Serving(crawler, urlQueue, "Put")
 Rel_Serving(crawler, urlfile, "Read")
