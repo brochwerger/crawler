@@ -30,15 +30,20 @@ class URLHandler(threading.Thread):
 
                 print("Processing {} at depth {}".format(url, depth))
 
-                with urllib.request.urlopen(url) as response:
-                    html = response.read()
-                    soup = BeautifulSoup(html, 'html.parser')
-                    for link in soup.find_all('a'):
-                        href = link.get('href')
-                        parsedurl = urllib.parse.urlparse(href)
-                        if parsedurl.scheme == "mailto":
-                            print("email found ==  {}".format(href))
-                        else:
-                            if parsedurl.scheme == "":
-                                href = url + href
-                            self.urlqueue.put([href, depth+1])
+                try:
+                    with urllib.request.urlopen(url) as response:
+                        html = response.read()
+                        soup = BeautifulSoup(html, 'html.parser')
+                        for link in soup.find_all('a'):
+                            href = link.get('href')
+                            parsedurl = urllib.parse.urlparse(href)
+                            if parsedurl.scheme == "mailto":
+                                print("email found ==  {}".format(href))
+                            else:
+                                print(parsedurl.path)
+                                if parsedurl.scheme == "":
+                                    href = url + href
+                                self.urlqueue.put([href, depth+1])
+
+                except:
+                    pass

@@ -1,18 +1,43 @@
 @startuml
-object Crawler
-object URLHandler
-object urlQueue
-object urlsHandled
-object emailHandler
-object emailQueue
-object emailKnown
+object crawler #lightblue
+object "URL Handler 1" as uh1 #lightblue
+object "URL Handler 2" as uh2 #lightblue
+object "URL Handler n" as uhn #lightblue
+object emailHandler #lightblue
 
-Crawler o-- "n" URLHandler
-Crawler o--  emailHandler
-Crawler o-- urlQueue
-Crawler o-- emailQueue
-emailHandler o-- emailQueue
-emailHandler o-- emailKnown
-URLHandler o-- urlQueue
-URLHandler o-- urlsHandled
+object urlQueue
+object listOfprocessedUrls
+object listOfRejectedUrls
+
+object emailQueue
+object listOfknownEmails
+
+'Thread <|-- crawler
+'Thread <|-- uh1
+'Thread <|-- uh2
+'Thread <|-- uhn
+'Thread <|-- emailHandler
+
+crawler -->  urlQueue
+
+emailQueue --> emailHandler
+emailHandler --> listOfknownEmails
+
+uh1 <--> urlQueue
+uh2 <--> urlQueue
+uhn <--> urlQueue
+
+listOfprocessedUrls <-- uh1
+listOfprocessedUrls <-- uh2
+listOfprocessedUrls <-- uhn
+
+listOfRejectedUrls <-- uh1
+listOfRejectedUrls <-- uh2
+listOfRejectedUrls <-- uhn
+
+uh1 --> emailQueue
+uh2 --> emailQueue
+uhn --> emailQueue
+
+
 @enduml
