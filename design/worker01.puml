@@ -3,9 +3,9 @@ start
 
 :Get URL from url-queue;
 '#pink:Validate URL;
-if (valid?) then (yes)
+if (new or changed) then (yes)
+    if (valid?) then (yes)
     '#pink:Check URL's history;
-    if (new or changed) then (yes)
         if (is email ?) then (yes)
             ':add href to email-queue;
             :add to email file;
@@ -21,9 +21,9 @@ if (valid?) then (yes)
         endif
     else (no)
     endif
-    : mark as not new;
 else (no)
- :Add to <list> of rejected URLs;
 endif
+: mark as not new;
+' :Add to <list> of rejected URLs;
 stop
 @enduml

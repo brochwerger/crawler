@@ -42,4 +42,4 @@ Which will install the BeatifulSoup version 4 library needed to extract links fr
 
 ![Components of solution](design/diagrams/crawler_obj_c4.png)
 
-![Flowchart of URL handler](design/diagrams/urlhandler-1.png)
+![Flowchart of Worker threads](design/diagrams/worker02.png)
