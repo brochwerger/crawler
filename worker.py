@@ -32,11 +32,12 @@ class Worker(threading.Thread):
     def run(self):
 
         depth = -1
-        while not self.urlqueue.empty() and (depth < self.maxdepth if self.maxdepth > 0 else True):
+        # while not self.urlqueue.empty() and (depth < self.maxdepth if self.maxdepth > 0 else True):
+        while depth < self.maxdepth if self.maxdepth > 0 else True:
 
-            purl, url, depth = self.urlqueue.get()
+            prevurl, url, depth = self.urlqueue.get()
 
-            curl = self.categorize(purl, url)
+            caturl = self.categorize(prevurl, url)
 
-            if curl and not curl.up2date():
-                curl.process(depth)
+            if caturl and not caturl.up2date():
+                caturl.process(depth)

@@ -24,9 +24,14 @@ def crawler(args):
     #
     # u.join()
 
-    w = Worker(urlqueue, emailqueue, args.maxdepth if args.maxdepth else -1)
-    w.start()
-    w.join()
+    workers = []
+    for w in range(args.nthreads):
+        worker = Worker(urlqueue, emailqueue, args.maxdepth if args.maxdepth else -1)
+        worker.start()
+        workers.append(worker)
+
+    for worker in workers:
+        worker.join()
 
 
 if __name__ == "__main__":
