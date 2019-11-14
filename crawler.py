@@ -1,4 +1,5 @@
 import argparse
+import logging
 import queue
 
 from urlhandler import URLHandler
@@ -26,7 +27,7 @@ def crawler(args):
 
     workers = []
     for w in range(args.nthreads):
-        worker = Worker(urlqueue, emailqueue, args.maxdepth if args.maxdepth else -1)
+        worker = Worker(w, urlqueue, emailqueue, args.maxdepth if args.maxdepth else -1)
         worker.start()
         workers.append(worker)
 
@@ -41,7 +42,13 @@ if __name__ == "__main__":
     parser.add_argument("--maxdepth", type=int)
     parser.add_argument("-f", "--filename") #, required=True)
     parser.add_argument("-u", "--url") #, required=True)
+    parser.add_argument("-o", "--output", default="emails_found.txt")
+    parser.add_argument("--verbose", action='store_true')
+
     args = parser.parse_args()
+
+    logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.DEBUG if args.verbose else logging.INFO)
+
     if args.filename == None and args.url == None:
         print(usage)
         exit()

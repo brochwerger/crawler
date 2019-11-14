@@ -1,7 +1,9 @@
+import logging
 import urllib
 from abc import ABC, abstractmethod
 
 from bs4 import BeautifulSoup
+
 
 class AbstractUrl(ABC):
 
@@ -30,7 +32,7 @@ class EmailUrl(AbstractUrl):
     processed = {}
 
     def process(self, depth):
-        print("Email:{}".format(self.url))
+        logging.debug("Email found : {}".format(self.url))
         self.enqueue(self.url)
 
         EmailUrl.processed[self.url] = self.url
@@ -46,7 +48,7 @@ class WebPageUrl(AbstractUrl):
     #     GenericUrl(url, queue)
 
     def process(self, depth):
-        print("Web Page: {}".format(self.url))
+        # logging.debug("Web Page: {}".format(self.url))
         try:
             with urllib.request.urlopen(self.url) as response:
                 html = response.read()
@@ -55,8 +57,11 @@ class WebPageUrl(AbstractUrl):
                     href = link.get('href')
                     self.enqueue([self.url, href, depth+1])
 
+        except urllib.error.URLError:
+            logging.error("Unable to fetch [{}]".format(self.url))
+
         except:
-            print("ERROR processing: {}".format(self.url))
+            logging.error("Unable to parse [{}]".format(self.url))
 
         WebPageUrl.processed[self.url] = self.url
 
