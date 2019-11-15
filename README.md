@@ -2,10 +2,10 @@
 
 #### Overview
 
-A simple web crawler that given a list of URLs it will recursively get and save in a file all refered emails
+A simple web crawler that given a list of URLs it will recursively get and save in a file all <B>referred</B> emails
 This is an implementation of 
 
-#### Folders ...:
+#### Files and folders ...:
 
 #### Building:
 
@@ -67,12 +67,10 @@ For a list of all supported flags type:
 ![Flowchart of Worker threads](design/diagrams/worker02.png)
 
 Known issues
-- Unheeded fetching of non-parseable files (images, movies and such)
+- Unneeded fetching of non-parseable files (images, movies and such)
 - Not all "local" urls seems to be properly handled (see `'Unable to categorize'` messages in logs)
 - BeatifulSoup seems to have problem parsing non english text (see `' ... confidence ...'` and 
   `'... not decoded ... '` messages in logs)
-- Output file is opened and closed per message, need better approach (open once, flush per message ? periodicall ?)
-TODO
 - Add monitoring thread that peridically prints status (queue sizes and such)
 - Limit queue size and add waiting when queue is full ?
 - Add mechanism to force workers to stop ?
