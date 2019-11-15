@@ -5,7 +5,8 @@ import queue
 from urlhandler import URLHandler
 from worker import Worker
 
-usage = "USAGE: Required parameter: -f <filename> OR -u <URL>"
+usage_hint1 = "USAGE HINT: Required parameter: -f <filename> OR -u <URL>"
+usage_hint2 = "USAGE HINT: Incompatible flags, use EITHER --verbose OR --quiet"
 
 def crawler(args):
 
@@ -44,13 +45,29 @@ if __name__ == "__main__":
     parser.add_argument("-u", "--url") #, required=True)
     parser.add_argument("-o", "--output", default="emails_found.txt")
     parser.add_argument("--verbose", action='store_true')
+    parser.add_argument("--quiet", action='store_true')
+    parser.add_argument("--logfile")
 
     args = parser.parse_args()
 
-    logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.DEBUG if args.verbose else logging.INFO)
 
     if args.filename == None and args.url == None:
-        print(usage)
+        print(usage_hint1)
         exit()
+
+    if args.quiet and args.verbose:
+        print(usage_hint2)
+        exit()
+
+    loglevel = logging.INFO
+    if args.verbose:
+        loglevel = logging.DEBUG
+    elif args.quiet:
+        loglevel = logging.CRITICAL
+
+    if args.logfile:
+        logging.basicConfig(filename=args.logfile, format="%(levelname)s: %(message)s", level=loglevel)
+    else:
+        logging.basicConfig(format="%(levelname)s: %(message)s", level=loglevel)
 
     crawler(args)
