@@ -71,6 +71,7 @@ Known issues
 - Not all "local" urls seems to be properly handled (see `'Unable to categorize'` messages in logs)
 - BeatifulSoup seems to have problem parsing non english text (see `' ... confidence ...'` and 
   `'... not decoded ... '` messages in logs)
+- Output file is opened and closed per message, need better approach (open once, flush per message ? periodicall ?)
 TODO
 - Add monitoring thread that peridically prints status (queue sizes and such)
 - Limit queue size and add waiting when queue is full ?
