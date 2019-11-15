@@ -1,0 +1,11 @@
+@startuml
+
+abstract class AbstractUrl {
+  process()
+}
+
+EmailUrl   --|> AbstractUrl
+WebPageUrl --|> AbstractUrl
+UnknownUrl --|> AbstractUrl
+
+@enduml

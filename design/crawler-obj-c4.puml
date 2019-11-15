@@ -1,18 +1,17 @@
 @startuml
 
 !includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/release/1-0/C4_Component.puml
-!includeurl https://raw.githubusercontent.com/ebbypeter/Archimate-PlantUML/master/Archimate.puml
 'LAYOUT_AS_SKETCH()
 'LAYOUT_WITH_LEGEND()
 
 Boundary(swc, 'Simple Web Crawler') {
 
     Container(crawler, "crawler", "Crawler Control")
-    Container(uh1, "URL Handler 1", "1/n")
-    Container(uh2, "URL Handler 2", "2/n")
-    Container(uhn, "URL Handler n", "n/n")
+    Container(wrk1, "Worker 1", "1/n")
+    Container(wrk2, "Worker 2", "2/n")
+    Container(wrkn, "Worker n", "n/n")
 
-    Container(emailHandler, "email Handler", "")
+    Container(Writer, "Email Writer", "")
 
     Component(emailQueue, "email queue", "Queue for unprocessed emails")
     Component(urlQueue, "URL queue", "Queue for unprocessed URLs")
@@ -29,34 +28,25 @@ System_Ext(emailfile, "email file", "[output]")
 Rel(crawler, urlQueue, "Put")
 Rel(crawler, urlfile, "Read")
 
-Rel(uh1, urlQueue, "Put/Get")
-Rel(uh2, urlQueue, "Put/Get")
-Rel(uhn, urlQueue, "Put/Get")
+Rel(wrk1, urlQueue, "Put/Get")
+Rel(wrk2, urlQueue, "Put/Get")
+Rel(wrkn, urlQueue, "Put/Get")
 
-Rel(uh1, emailQueue, "Put")
-Rel(uh2, emailQueue, "Put")
-Rel(uhn, emailQueue, "Put")
+Rel(wrk1, emailQueue, "Put")
+Rel(wrk2, emailQueue, "Put")
+Rel(wrkn, emailQueue, "Put")
 
-Rel_Serving_Up(uh1, listOfprocessedUrls, "Search/Append")
-Rel_Serving_Up(uh2, listOfprocessedUrls, "Search/Append")
-Rel_Serving_Up(uhn, listOfprocessedUrls, "Search/Append")
+Rel_U(wrk1, listOfprocessedUrls, "Search/Append")
+Rel_U(wrk2, listOfprocessedUrls, "Search/Append")
+Rel_U(wrkn, listOfprocessedUrls, "Search/Append")
 
-Rel_Serving_Up(uh1, listOfRejectedUrls, "Search/Append")
-Rel_Serving_Up(uh2, listOfRejectedUrls, "Search/Append")
-Rel_Serving_Up(uhn, listOfRejectedUrls, "Search/Append")
+Rel_U(wrk1, listOfRejectedUrls, "Search/Append")
+Rel_U(wrk2, listOfRejectedUrls, "Search/Append")
+Rel_U(wrkn, listOfRejectedUrls, "Search/Append")
 
-'
-'listOfprocessedUrls <-- "Search/Append" uh1
-'listOfprocessedUrls <-- "Search/Append" uh2
-'listOfprocessedUrls <-- "Search/Append" uhn
-'
-'listOfRejectedUrls <-- uh1
-'listOfRejectedUrls <-- uh2
-'listOfRejectedUrls <-- uhn
-
-emailQueue --> emailHandler
-Rel(emailHandler,listOfknownEmails, "Search/Append")
-Rel(emailHandler,emailfile, "Append")
+emailQueue --> Writer
+Rel(Writer,listOfknownEmails, "Search/Append")
+Rel(Writer, emailfile, "Append")
 
 
 @enduml
