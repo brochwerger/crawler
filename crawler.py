@@ -4,6 +4,7 @@ import queue
 
 from urlhandler import URLHandler
 from worker import Worker
+from writer import Writer
 
 usage_hint1 = "USAGE HINT: Required parameter: -f <filename> OR -u <URL>"
 usage_hint2 = "USAGE HINT: Incompatible flags, use EITHER --verbose OR --quiet"
@@ -16,32 +17,36 @@ def crawler(args):
     if args.url:
         urlqueue.put([None, args.url, 1])
 
-    if args.filename:
-        with open(args.filename) as file:
+    if args.input:
+        with open(args.input) as file:
             for url in file:
                 urlqueue.put([None, url, 1])
 
-    # u = URLHandler(urlqueue, emailqueue, args.maxdepth if args.maxdepth else -1)
-    # u.start()
-    #
-    # u.join()
-
+    # Start the worker threads
     workers = []
     for w in range(args.nthreads):
         worker = Worker(w, urlqueue, emailqueue, args.maxdepth if args.maxdepth else -1)
         worker.start()
         workers.append(worker)
 
-    for worker in workers:
-        worker.join()
+    # Start the writer thread
+    writer = Writer(args.output, emailqueue)
+    writer.start()
 
+    # Wait for all worker threads to finish (which may happen if we limit the depth of the search)
+    for t in workers:
+        t.join()
+
+    # All worker threads have finished --> force the writer thread to finish too
+    writer.stop()
+    writer.join()
 
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument("-n", "--nthreads", type=int, default=10)
     parser.add_argument("--maxdepth", type=int)
-    parser.add_argument("-f", "--filename") #, required=True)
+    parser.add_argument("-i", "--input") #, required=True)
     parser.add_argument("-u", "--url") #, required=True)
     parser.add_argument("-o", "--output", default="emails_found.txt")
     parser.add_argument("--verbose", action='store_true')
@@ -50,8 +55,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-
-    if args.filename == None and args.url == None:
+    if args.input == None and args.url == None:
         print(usage_hint1)
         exit()
 

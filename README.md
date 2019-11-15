@@ -29,17 +29,50 @@ Which will install the BeatifulSoup version 4 library needed to extract links fr
 
 ###### Option 1: Use docker 
 
-`docker run -ti crawler -f <filename> [-n <number-of-threads>]`
+`docker run -ti -v $(pwd):/out crawler [-f <filename> | -u <url>] -o /out/<outputfile>`
+ 
+ For a list of all supported flags type:
+
+`docker run -ti crawler -h`
  
 ###### Option 2: Python application 
+
+`python crawler.py  [-f <filename> | -u <url>] -o <outputfile>`
+
+For a list of all supported flags type:
+
+`python crawler.py -h`
 
 
 #### Test Suite
 
 `TESTS_DIR=$(pwd) docker stack deploy -c circular.yml c`
 
+`docker run --network c_test -v $(pwd):/out crawler -u http://c1  -n 1 --verbose -o /out/<outputfile>`
+
 #### Design
+
+##### Assumptions
+- In memory solution to show functionality. Should be easy to modify to a more resilient solution that uses an
+  external data store
+- Initial solution may not be fully optimized for performance, but desing should consider performance 
+  optimizations 
+- Retrieve emails only in the form of <a href='mailto:...>, while emails may appear anywhere in the text, any modern web 
+  authoring tool will automatically add a link to wherever an email address is inserted, so limiting 
+  the search to links will most likely find the majority of emails while greatly reducing the parsing complexity.
+- Static content (more on this later)
 
 ![Components of solution](design/diagrams/crawler_obj_c4.png)
 
 ![Flowchart of Worker threads](design/diagrams/worker02.png)
+
+Known issues
+- Unheeded fetching of non-parseable files (images, movies and such)
+- Not all "local" urls seems to be properly handled (see `'Unable to categorize'` messages in logs)
+- BeatifulSoup seems to have problem parsing non english text (see `' ... confidence ...'` and 
+  `'... not decoded ... '` messages in logs)
+TODO
+- Add monitoring thread that peridically prints status (queue sizes and such)
+- Limit queue size and add waiting when queue is full ?
+- Add mechanism to force workers to stop ?
+
