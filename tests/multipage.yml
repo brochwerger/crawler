@@ -1,0 +1,20 @@
+version: '3.7'
+
+services:
+
+  m1:
+    image: nginx
+
+    networks:
+      - test
+
+    volumes:
+      - ${TESTS_DIR}/multipage:/usr/share/nginx/html
+
+    ports:
+      - "8080:80"
+
+networks:
+  test:
+    driver: overlay
+    attachable: true
