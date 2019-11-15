@@ -7,13 +7,13 @@ class Writer(threading.Thread):
         self.filename = filename
         self.emailqueue = emailqueue
         self.keepgoing = True
+        self.out = open(self.filename, "a+", buffering=1)
 
     def stop(self):
         self.keepgoing = False
 
     def run(self):
         while self.keepgoing:
-            self.out = open(self.filename, "a+")
             msg = self.emailqueue.get()
             self.out.write(msg+'\n')
-            self.out.close()
+        self.out.close()
