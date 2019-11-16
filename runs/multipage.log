@@ -1,0 +1,31 @@
+DEBUG: W#00000 working on [http://m1]
+DEBUG: W#00000 working on [/page1/]
+DEBUG: W#00002 working on [page2/index.html]
+DEBUG: W#00000 working on [page3/pageA/]
+DEBUG: W#00002 working on [mailto:root@mpage.com]
+DEBUG: Email found : mailto:root@mpage.com
+DEBUG: W#00002 working on [dog.jpg]
+DEBUG: W#00000 working on [mailto:root@mpage.com]
+DEBUG: W#00000 working on [mailto:absolute.page@mpage.com]
+DEBUG: Email found : mailto:absolute.page@mpage.com
+DEBUG: W#00000 working on [/index.html]
+DEBUG: W#00001 working on [mailto:root@mpage.com]
+DEBUG: W#00001 working on [mailto:relative.page@mpage.com]
+DEBUG: Email found : mailto:relative.page@mpage.com
+DEBUG: W#00001 working on [/index.html]
+DEBUG: W#00001 working on [mailto:root@mpage.com]
+DEBUG: W#00001 working on [mailto:twolevels.page@mpage.com]
+DEBUG: Email found : mailto:twolevels.page@mpage.com
+DEBUG: W#00001 working on [/index.html]
+DEBUG: W#00001 working on [/page1/]
+DEBUG: W#00001 working on [page2/index.html]
+DEBUG: W#00001 working on [page3/pageA/]
+DEBUG: W#00001 working on [mailto:root@mpage.com]
+DEBUG: W#00001 working on [dog.jpg]
+WARNING: Some characters could not be decoded, and were replaced with REPLACEMENT CHARACTER.
+DEBUG: W#00000 working on [/page1/]
+DEBUG: W#00000 working on [page2/index.html]
+DEBUG: W#00000 working on [page3/pageA/]
+DEBUG: W#00000 working on [mailto:root@mpage.com]
+DEBUG: W#00000 working on [dog.jpg]
+WARNING: Some characters could not be decoded, and were replaced with REPLACEMENT CHARACTER.

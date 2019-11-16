@@ -77,6 +77,13 @@ end
 
 `docker run --network c_test -v $(pwd):/out crawler -u http://c1  -n 1 --verbose -o /out/<outputfile>`
 
+`docker run -d --name crawler --network c_test -v $(pwd)/runs:/out crawler -u http://c1 -o /out/crawler.txt --logfile /out/crawler.log --verbose`
+
+`TESTS_DIR=$(pwd) docker stack deploy -c tests/multipage.yml m`
+
+`docker run -d --name crawler --network m_test -v $(pwd)/runs:/out crawler -u http://m1 -o /out/multipage.txt --logfile /out/multipage.log --verbose`
+
+
 ## Design
 
 ### Assumptions
@@ -130,3 +137,54 @@ container orchestration system such as `kubernetes`.
 - Add mechanism to force workers to stop ?
 
 ## Observations 
+
+From looking at the results after running the system a few times we can get a feeling of what needs further work.
+If we look at the numbers:
+
+`[1]$ grep working *.log | wc -l`
+`97742`
+`[2]$ wc -l *.out`
+` 164 total`
+`[3]$ grep fetch *.log | wc -l`
+`4277`
+`[4]$ grep parse *.log | wc -l`
+`3009`
+`[5]$ grep categorize *.log | wc -l`
+`8198`
+
+From these numbers, we can reach the following conclusions:
+
+1. The use of the `mailto` reference tag is not too common (164 out of almost 10K). Need to revisit the assumption that 
+the `mailto` tag will get most of the email addresses
+
+2. Error rate is too high - around 15% (8198+3009+4277). From these errors, 3% will go away if code fetch only parseable
+ resources; 4% are probably due to network errors or old URLs; the remaining 8% is what I labeled as 
+ 'categorize error' which points to "local references" where the means the URL was not fully qualified and I try to build a fully qualified URL from the 
+ at hand (the previous URL). This code needs to be revised to see if we can get better results (less categorize errors).
+
+Another interesting observation is that one of the runs worked on considerable less URLs that the other but both run about the same time (around 1 hour)
+and with the same resources (the default 10 threads):
+
+`[6]$ grep working list1.log | wc -l`
+`55585`
+`[7]$ grep working list2.log | wc -l`
+`4130`
+
+By looking at the logs of the "lazy" run we can see that the system is waiting on the download of un-parseable large files (
+(linux distributions in this case). Code to avoid this will greatly improve performanace:
+
+`
+[8]$ grep working list2.log | tail 
+DEBUG: W#00009 working on [http://www.kick.co.il]
+DEBUG: W#00009 working on [https://www.vesty.co.il]
+DEBUG: W#00009 working on [None]
+DEBUG: W#00009 working on [None]
+DEBUG: W#00009 working on [https://download.mozilla.org/?product=firefox-stub&os=win64&lang=en-US]
+DEBUG: W#00005 working on [https://download.mozilla.org/?product=firefox-msi-latest-ssl&os=win64&lang=en-US]
+DEBUG: W#00009 working on [https://download.mozilla.org/?product=firefox-stub&os=win&lang=en-US]
+DEBUG: W#00009 working on [https://download.mozilla.org/?product=firefox-msi-latest-ssl&os=win&lang=en-US]
+DEBUG: W#00009 working on [https://download.mozilla.org/?product=firefox-latest-ssl&os=osx&lang=en-US]
+DEBUG: W#00005 working on [https://download.mozilla.org/?product=firefox-latest-ssl&os=linux64&lang=en-US]
+`
+
+
