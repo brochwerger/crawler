@@ -27,15 +27,14 @@ To simplify dependency management a Dockerfile is provided with the code such th
 
 `docker build -t crawler .`
 
-The system was buit and tested with docker version 18.09.7 but given the simplicity of the Dockerfile it may work with older versions as well.
+The system was built and tested with docker version 18.09.7 but given the simplicity of the Dockerfile it probably works
+ with older versions as well.
  
 ### Option 2: Python application 
 
-As a python application per-se, there is no "build", however for the application to run there is a need to install additional libraries as follow:
+For the application to run as a python script there is a need to install the BeautifulSoup4 library as follow:
 
 `sudo pip3 install bs4`
-
-Which will install the BeatifulSoup version 4 library needed to extract links from HTML files. 
  
 ## Running:
 
@@ -49,14 +48,14 @@ Which will install the BeatifulSoup version 4 library needed to extract links fr
  
 ### Option 2: Python application 
 
-`python crawler.py  [-f <filename> | -u <url>] -o <outputfile>`
+`crawler.py  [-f <filename> | -u <url>] -o <outputfile>`
 
 For a list of all supported flags type:
 
-`python crawler.py -h`
+`crawler.py -h`
 
 
-## Test Suite
+## Testint
 
 `TESTS_DIR=$(pwd) docker stack deploy -c circular.yml c`
 
