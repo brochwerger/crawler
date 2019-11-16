@@ -173,16 +173,41 @@ of synchronizing them.
 
 The components, as well as their relationships (operations) are shown in the following figure:
 
-[Components of solution](design/diagrams/crawler_obj_current.png)
+![Components of solution](design/diagrams/crawler_obj_current.png)
+
+Initially, the system is implemented as a multi-threaded python application, with python queues and python dictionaries 
+as the key-value-stores.
 
 ### Worker flow
 
+As mentioned above, most of the logic falls within the `workers`. The straightforward flow of a `worker` is show in the 
+following flowchart:
+
 ![Worker flowchart](design/diagrams/worker01.png)
 
-#### Simplified worker flow
+Clearly, a direct implementation of such workflow will lead to cumbersome, and not easily extensible code. But a close 
+look into the first steps after getting an URL from the queue are basically a validation and classification process. With
+this insight we can simplify the `workers` flow as follow:
 
 ![Simplified Worker flowchart](design/diagrams/worker02.png)
 
+With this approach, the `workers` invoke methods of an `AbstractUrl` class, whereas the classification stage returns a 
+instance of one the the URL concrete classes available, and the functionality specific to each URL type is implemented in
+the concrete classes. The class diagram for this is shown in the following figure:
+
+![URLs Class diagram](design/diagrams/urls_class.png)
+
+With this approach, not only does the `worker` code becomes cleaner, but it not very easy to extend system 
+to additional URL types by adding a new concrete derive class.
+
+Special attention is needed on the test of whether a valid, non email, URL is new or updated. For emails a simple
+hash of the actual email is enough to ensure uniqueness, but with web pages the name is not enough because the
+same URL changes over time, take for example a news web site in which the content constantly changes but the
+name stays the same. To deal with these "dynamic" pages we need a more sophisticated implementation of the `is_uptodate`
+method of the `WebPageUrl` class. For the initial implementation we assume static web pages, in which case, checking 
+whether we already have seen the name (as in emails is enough. A better approach needs a mechanism to invalidate, after
+a certain period, entries in the `WebPageUrl` key value store.
+ 
 ### Proposed improvements
 
 The single process, all in-memory, python implementation is good as a proof of concept, it not well suited for a 
@@ -199,13 +224,14 @@ each service can be deployed, scaled and managed independently. For maximum perf
 and availability, this improved system can be easily deployed on a large cluster managed by a 
 container orchestration system such as `kubernetes`.    
 
+![Components of proposed solution](design/diagrams/crawler_obj_proposed.png)
+
 #### Additional improvements (local):
 1. Consider better performing alternatives to `BeautifulSoup` as the parser
 2. Download/fetch only parseable resources (i.e, text based files such as HTML, XML)
-3. Redesign to support dynamic content
-
-
-![Components of proposed solution](design/diagrams/crawler_obj_proposed.png)
+3. Add support for dynamic content
+4. Replace (or add to) the maximum depth with a timeout based mechanism so the system stops when 
+it not learning any new URLs
 
 ## Known issues
 - Unneeded fetching of non-parseable files (images, movies and such)
