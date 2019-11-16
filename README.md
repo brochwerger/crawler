@@ -2,9 +2,7 @@
 
 ## Overview
 
-A simple web crawler that given a list of URLs it will recursively get and save in a file all <B>referred</B> emails
-This is an implementation of 
-
+A simple web crawler that given a list of URLs it will recursively fetch resources and extract from them all <B>referred</B> emails.
 ## Files and folders:
 
 - `crawler.py`: System's main, responsible for handling command line parameters, reading input file, creating shared 
@@ -26,12 +24,10 @@ This is an implementation of
 
 ### Option 1: Use docker 
 
-To simplify dependency management a Dockerfile is provided with the code such that a self contained docker image can be easily build as follow:
+To simplify dependency management a Dockerfile is provided with the code such that a self contained docker image can be 
+easily build as follow:
 
 `docker build -t crawler .`
-
-The system was built and tested with docker version 18.09.7 but given the simplicity of the Dockerfile it probably works
- with older versions as well.
  
 ### Option 2: Python application 
 
@@ -43,8 +39,11 @@ For the application to run as a python script there is a need to install the Bea
 
 ### Option 1: Use docker 
 
-`docker run -ti -v $(pwd):/out crawler [-f <filename> | -u <url>] -o /out/<outputfile>`
+`docker run -d -v $(pwd):/<guestdir> crawler [-f <filename> | -u <url>] -o /<guestdir>/<outputfile>`
  
+ Please note that it is important to pass the volume parameter (`-v <hostdir>:<guestdir>), without it the resulting output
+ file (and logs) will only be available in the container's file system
+  
  For a list of all supported flags type:
 
 `docker run -ti crawler -h`
@@ -73,13 +72,35 @@ For a list of all supported flags type:
 ## Testing
 
 To validate correctness we need to run the system on set of web pages such that the expected results are known. To this
-end 
+end, a couple of docker swarm stacks are provided. With these stacks, we can easily bring up a set of local web servers with
+controlled content.
 
-`TESTS_DIR=$(pwd) docker stack deploy -c circular.yml c`
+To deploy the stacks, docker swarm needs to be enabled as follow:
 
-`docker run --network c_test -v $(pwd):/out crawler -u http://c1  -n 1 --verbose -o /out/<outputfile>`
+`docker swarm init`
 
-`docker run -d --name crawler --network c_test -v $(pwd)/runs:/out crawler -u http://c1 -o /out/crawler.txt --logfile /out/crawler.log --verbose`
+then, the testing web servers can be deployed with the `docker stack deploy -c <stack.yml> command.
+
+### Circular test
+
+The stack in `tests\circular.yml` enables us to test 1. that the system will not enter into an infinite loop, and 2.
+only unique emails are saved. It consists of 3 web servers, each with a simple HTML page that point to the next server; 
+the HTML in the last server points back to the first one, thus creating a loop. In addition, in the HTML of each server
+there is a list of email references, but only one is unique.
+
+To deploy the stack, type (while in the crawler directory):
+
+`TESTS_DIR=$(pwd)/tests docker stack deploy -c tests/circular.yml c`
+
+the run the crawler container as follow:
+
+`docker run --network c_test -v $(pwd)/runs:/tmp crawler -u http://c1 --verbose -o /tmp/circular.out --logfile /tmp/circular.log`
+
+For this to work properly, the network parameter (`--network c_test`) is a must. It connects the crawler to the `c_test`
+virtual network and the associated namespace (swarm internal DNS server resolved the hostname `c1` if accessed in the `c_test` 
+network)
+
+### Multi-page test
 
 `TESTS_DIR=$(pwd) docker stack deploy -c tests/multipage.yml m`
 
@@ -159,10 +180,11 @@ From these numbers, we can reach the following conclusions:
 1. The use of the `mailto` reference tag is not too common (164 out of almost 10K). Need to revisit the assumption that 
 the `mailto` tag will get most of the email addresses
 
-2. Error rate is too high - around 15% (8198+3009+4277). From these errors, 3% will go away if code fetch only parseable
- resources; 4% are probably due to network errors or old URLs; the remaining 8% is what I labeled as 
- 'categorize error' which points to "local references" where the means the URL was not fully qualified and I try to build a fully qualified URL from the 
- at hand (the previous URL). This code needs to be revised to see if we can get better results (less categorize errors).
+2. Error rate is too high - around 15% (8198+3009+4277). From these errors, 3% will go away if code fetch only
+ parseable resources; 4% are probably due to network errors or stale URLs; the remaining 8% is what I labeled as 
+ 'categorize error' which points to "local references" where the means the URL was not fully qualified and I try to
+  build a fully qualified URL from the  at hand (the previous URL). This code needs to be revised to see if we can get 
+  better results (less categorize errors).
 
 Another interesting observation is that one of the runs worked on considerable less URLs that the other but both run about the same time (around 1 hour)
 and with the same resources (the default 10 threads):
