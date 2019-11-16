@@ -2,10 +2,12 @@
 
 abstract class AbstractUrl {
   process()
+  is_uptodate()
+  enqueue()
 }
 
-EmailUrl   --|> AbstractUrl
-WebPageUrl --|> AbstractUrl
-UnknownUrl --|> AbstractUrl
+AbstractUrl <|-- EmailUrl
+AbstractUrl <|-- WebPageUrl
+AbstractUrl <|-- UnknownUrl
 
 @enduml

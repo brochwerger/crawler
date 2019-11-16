@@ -100,11 +100,42 @@ For this to work properly, the network parameter (`--network c_test`) is a must.
 virtual network and the associated namespace (swarm internal DNS server resolved the hostname `c1` if accessed in the `c_test` 
 network)
 
+This should produce the following list of emails:
+
+`mailto:1@c1.com`
+
+`mailto:2@c2.com`
+
+`mailto:3@c3.com`
+
 ### Multi-page test
 
-`TESTS_DIR=$(pwd) docker stack deploy -c tests/multipage.yml m`
+For multi-page web sites, links to "local" (within the same web server) do not include all the information to be
+accessible from the outside. In order to deal with "local" pages, the categorization process (more on this in the
+ [Design](design) section) tries to build a fully qualified URL from the information available (the link (current URL) 
+ and the referring page (the previous URLs). The stack in `tests/multipage.yml` enables us to test the handling of 
+ local pages.
 
-`docker run -d --name crawler --network m_test -v $(pwd)/runs:/out crawler -u http://m1 -o /out/multipage.txt --logfile /out/multipage.log --verbose`
+To deploy the stack, type (while in the crawler directory):
+
+`TESTS_DIR=$(pwd)/tests docker stack deploy -c tests/multipage.yml m`
+
+the run the crawler container as follow:
+
+`docker run -d --network m_test -v $(pwd)/runs:/tmp crawler -u http://m1 -o /tmp/multipage.txt --logfile /tmp/multipage.log --verbose`
+
+Again, the network parameter (`--network m_test`) is a must. 
+
+This should producer the following list of emails:
+
+`mailto:root@mpage.com`
+
+`mailto:absolute.page@mpage.com`
+
+`mailto:relative.page@mpage.com`
+
+`mailto:twolevels.page@mpage.com`
+
 
 
 ## Design
@@ -112,17 +143,22 @@ network)
 ### Assumptions
 - In memory solution to show functionality. Should be easy to modify to a more resilient solution that uses an
   external data store
-- Initial solution may not be fully optimized for performance, but desing should consider performance 
-  optimizations 
+- Initial solution may not be fully optimized for performance, but design should consider performance 
+  optimizations and implementation easily modified 
 - Retrieve emails only in the form of <a href='mailto:...>, while emails may appear anywhere in the text, any modern web 
   authoring tool will automatically add a link to wherever an email address is inserted, so limiting 
   the search to links will most likely find the majority of emails while greatly reducing the parsing complexity.
 - Static content (more on this later)
 
+### Solution Components
+
 ![Components of solution](design/diagrams/crawler_obj_current.png)
+
+### Worker flow
 
 ![Worker flowchart](design/diagrams/worker01.png)
 
+#### Simplified worker flow
 
 ![Simplified Worker flowchart](design/diagrams/worker02.png)
 
@@ -155,9 +191,10 @@ container orchestration system such as `kubernetes`.
 - Not all "local" urls seems to be properly handled (see `'Unable to categorize'` messages in logs)
 - BeatifulSoup seems to have problem parsing non english text (see `' ... confidence ...'` and 
   `'... not decoded ... '` messages in logs)
-- Add monitoring thread that peridically prints status (queue sizes and such)
+- Add monitoring thread that periodically prints status (queue sizes and such)
 - Limit queue size and add waiting when queue is full ?
-- Add mechanism to force workers to stop ?
+- Depth limiting mechanism only works with `nthreads == 1`. Need an alternative mechanism to force workers to stop. 
+Maybe levearge the timeout capability of python queues?
 
 ## Observations 
 
@@ -165,14 +202,23 @@ From looking at the results after running the system a few times we can get a fe
 If we look at the numbers:
 
 `[1]$ grep working *.log | wc -l`
+
 `97742`
+
 `[2]$ wc -l *.out`
+
 ` 164 total`
+
 `[3]$ grep fetch *.log | wc -l`
+
 `4277`
+
 `[4]$ grep parse *.log | wc -l`
+
 `3009`
+
 `[5]$ grep categorize *.log | wc -l`
+
 `8198`
 
 From these numbers, we can reach the following conclusions:
@@ -190,25 +236,32 @@ Another interesting observation is that one of the runs worked on considerable l
 and with the same resources (the default 10 threads):
 
 `[6]$ grep working list1.log | wc -l`
+
 `55585`
+
 `[7]$ grep working list2.log | wc -l`
+
 `4130`
 
 By looking at the logs of the "lazy" run we can see that the system is waiting on the download of un-parseable large files (
-(linux distributions in this case). Code to avoid this will greatly improve performanace:
+(linux distributions in this case). Code to avoid this will greatly improve performance:
 
-`
-[8]$ grep working list2.log | tail 
-DEBUG: W#00009 working on [http://www.kick.co.il]
-DEBUG: W#00009 working on [https://www.vesty.co.il]
-DEBUG: W#00009 working on [None]
-DEBUG: W#00009 working on [None]
-DEBUG: W#00009 working on [https://download.mozilla.org/?product=firefox-stub&os=win64&lang=en-US]
-DEBUG: W#00005 working on [https://download.mozilla.org/?product=firefox-msi-latest-ssl&os=win64&lang=en-US]
-DEBUG: W#00009 working on [https://download.mozilla.org/?product=firefox-stub&os=win&lang=en-US]
-DEBUG: W#00009 working on [https://download.mozilla.org/?product=firefox-msi-latest-ssl&os=win&lang=en-US]
-DEBUG: W#00009 working on [https://download.mozilla.org/?product=firefox-latest-ssl&os=osx&lang=en-US]
-DEBUG: W#00005 working on [https://download.mozilla.org/?product=firefox-latest-ssl&os=linux64&lang=en-US]
-`
+`[8]$ grep working list2.log | tail`
+ 
+`DEBUG: W#00009 working on [http://www.kick.co.il]`
+
+`DEBUG: W#00009 working on [https://www.vesty.co.il]`
+
+`DEBUG: W#00009 working on [https://download.mozilla.org/?product=firefox-stub&os=win64&lang=en-US]`
+
+`DEBUG: W#00005 working on [https://download.mozilla.org/?product=firefox-msi-latest-ssl&os=win64&lang=en-US]`
+
+`DEBUG: W#00009 working on [https://download.mozilla.org/?product=firefox-stub&os=win&lang=en-US]`
+
+`DEBUG: W#00009 working on [https://download.mozilla.org/?product=firefox-msi-latest-ssl&os=win&lang=en-US]`
+
+`DEBUG: W#00009 working on [https://download.mozilla.org/?product=firefox-latest-ssl&os=osx&lang=en-US]`
+
+`DEBUG: W#00005 working on [https://download.mozilla.org/?product=firefox-latest-ssl&os=linux64&lang=en-US]`
 
 
