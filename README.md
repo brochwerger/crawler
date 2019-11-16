@@ -18,7 +18,8 @@ This is an implementation of
    See [Testing](#testing) section) for details on how to use these. 
 - `design`: PlantUML files (text-based tool for "drawing" UML diagrams) and corresponding diagrams explaining the 
    system's design. These diagrams are included in this document (with explanations) in the [Design](#design) section.
-   
+- `runs`: Folder used to collect input, output and log files from different runs of the system. The comments in the
+   [Observations](observations) section refers to these files.
 ## Building:
 
 ### Option 1: Use docker 
@@ -48,14 +49,29 @@ For the application to run as a python script there is a need to install the Bea
  
 ### Option 2: Python application 
 
-`crawler.py  [-f <filename> | -u <url>] -o <outputfile>`
+`python3 crawler.py  [-f <filename> | -u <url>] -o <outputfile>`
 
 For a list of all supported flags type:
 
-`crawler.py -h`
+`python crawler.py -h`
+
+### Supported flags (applicable to both options above):
+
+- `-i <filename>, --input <filename>`:
+- `-u <URL>, --url <URL>`:
+- `-o <filename>, --output <filename>`:
+- `-n #, --nthreads #`: [Optional] Number of threads. Default: 10
+- `--maxdepth`: [Optional] Maximum depth to crawl. Default: no limit
+- `--verbose` : [Optional] Maximize logs generated (show all logs)
+- `--quiet` : [Optional] Minimize logs generated (only critical errors)
+- `--logfile <filename>`: [Optional] If present logs are saved to <filename>, otherwise to stout/stderr.
+- `-h`: Shows short help message
 
 
-## Testint
+## Testing
+
+To validate correctness we need to run the system on set of web pages such that the expected results are known. To this
+end 
 
 `TESTS_DIR=$(pwd) docker stack deploy -c circular.yml c`
 
@@ -73,9 +89,36 @@ For a list of all supported flags type:
   the search to links will most likely find the majority of emails while greatly reducing the parsing complexity.
 - Static content (more on this later)
 
-![Components of solution](design/diagrams/crawler_obj_c4.png)
+![Components of solution](design/diagrams/crawler_obj_current.png)
 
-![Flowchart of Worker threads](design/diagrams/worker02.png)
+![Worker flowchart](design/diagrams/worker01.png)
+
+
+![Simplified Worker flowchart](design/diagrams/worker02.png)
+
+### Proposed improvements
+
+The single process, all in-memory, python implementation is good as a proof of concept, it not well suited for a 
+production system. However, with minor changes to the code and the deployment model, with the same basic design we 
+achieve a much robust, scalable and better performing system.
+
+#### Suggested changes (system-wide):
+1. Use standalone processes instead of python Threads. Each such process can be packaged as a container
+2. Replace python queues with a standalone distributed queuing system, such as `RabbitMQ` or `Kafka`,
+3. Replace python dictionaries with a standalone key-value-store system, such as `Redis` or `Memcached`
+
+With these changes in place the system is now made of several service layers (see modified object diagram below), where 
+each service can be deployed, scaled and managed independently. For maximum performance, scalability
+and availability, this improved system can be easily deployed on a large cluster managed by a 
+container orchestration system such as `kubernetes`.    
+
+#### Additional improvements (local):
+1. Consider better performing alternatives to `BeautifulSoup` as the parser
+2. Download/fetch only parseable resources (i.e, text based files such as HTML, XML)
+3. Redesign to support dynamic content
+
+
+![Components of proposed solution](design/diagrams/crawler_obj_proposed.png)
 
 ## Known issues
 - Unneeded fetching of non-parseable files (images, movies and such)

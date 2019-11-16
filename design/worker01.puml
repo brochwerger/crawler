@@ -3,7 +3,7 @@ start
 
 :Get URL from url-queue;
 '#pink:Validate URL;
-if (new or changed) then (yes)
+if (new or changed**) then (yes)
     if (valid?) then (yes)
     '#pink:Check URL's history;
         if (is email ?) then (yes)

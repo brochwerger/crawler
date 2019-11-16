@@ -1,0 +1,61 @@
+@startuml
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/release/1-0/C4_Component.puml
+'LAYOUT_AS_SKETCH()
+'LAYOUT_WITH_LEGEND()
+
+Boundary(control, 'Crawler Control') {
+    Container(crawler, "crawler", "Crawler Control")
+}
+
+Boundary(crawling, 'Crawling Service') {
+    Container(wrk1, "Worker 1", "1/n")
+    Container(wrk2, "Worker 2", "2/n")
+    Container(wrkn, "Worker n", "n/n")
+
+}
+
+Boundary(writing, 'Writing Service') {
+    Container(Writer, "Email Writer", "")
+}
+
+Boundary(queuing, 'Queuing Service') {
+    Component(emailQueue, "email queue", "Queue for unprocessed emails")
+    Component(urlQueue, "URL queue", "Queue for unprocessed URLs")
+
+}
+
+Boundary(storing, 'Storing Service') {
+    SystemDb(listOfprocessedUrls, "Processed URLs", "")
+    SystemDb(listOfRejectedUrls, "Rejected URLs", "")
+    SystemDb(listOfknownEmails, "Known emails", "")
+}
+
+System_Ext(urlfile, "URLs file", "[input]")
+System_Ext(emailfile, "email file", "[output]")
+
+Rel(crawler, urlQueue, "Put")
+Rel(crawler, urlfile, "Read")
+
+Rel(wrk1, urlQueue, "Put/Get")
+Rel(wrk2, urlQueue, "Put/Get")
+Rel(wrkn, urlQueue, "Put/Get")
+
+Rel(wrk1, emailQueue, "Put")
+Rel(wrk2, emailQueue, "Put")
+Rel(wrkn, emailQueue, "Put")
+
+Rel_U(wrk1, listOfprocessedUrls, "Search/Append")
+Rel_U(wrk2, listOfprocessedUrls, "Search/Append")
+Rel_U(wrkn, listOfprocessedUrls, "Search/Append")
+
+Rel_U(wrk1, listOfRejectedUrls, "Search/Append")
+Rel_U(wrk2, listOfRejectedUrls, "Search/Append")
+Rel_U(wrkn, listOfRejectedUrls, "Search/Append")
+
+emailQueue --> Writer
+Rel(Writer,listOfknownEmails, "Search/Append")
+Rel(Writer, emailfile, "Append")
+
+
+@enduml
