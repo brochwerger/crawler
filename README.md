@@ -152,7 +152,28 @@ This should producer the following list of emails:
 
 ### Solution Components
 
-![Components of solution](design/diagrams/crawler_obj_current.png)
+For best performance the system should be build as a producer-consumer system with queues between: Producers 
+find URLs, add them to a queue; and, in parallel, consumers retrieve URLs from the queue, validate them, fetch the 
+resource they point to, and then parse the resource (file) and looks for email references, which if found are push to yet
+another queue, where a special purpose consumer reads them and writes them to a file. With this general model in mind the 
+following components are needed:
+
+1. A queue for URLs
+2. A queue for emails
+3. The `crawler controller` which is responsible for firing the other components, reading the input file with initial URLs 
+and feeding them to the URLs queue, i.e., the `crawler controller` is a producer of URLs
+4. A set of one or more `workers` which are responsible for the heavy lifting: get URLs from the queue, validate them, fetch
+the resource, parse it, and find in it all the links. For each link found, if it is an email feed it to the emails queue, 
+if not feed it to the URLs queue, i.e., the `workers` are both producers and consumers of URLs
+5. To avoid processing the same resources more than once we need a set of key-value-stores, where the resources that have
+been handled can be stored.
+6. A `writer` which is responsible for getting emails from the emails queue and writing them to a file. This job has a
+dedicated component, instead of being done by the `workers`, to avoid multiple writers to a single file and the complexity 
+of synchronizing them.
+
+The components, as well as their relationships (operations) are shown in the following figure:
+
+[Components of solution](design/diagrams/crawler_obj_current.png)
 
 ### Worker flow
 
