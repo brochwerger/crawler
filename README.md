@@ -1,15 +1,27 @@
 # Simple Web Crawler
 
-#### Overview
+## Overview
 
 A simple web crawler that given a list of URLs it will recursively get and save in a file all <B>referred</B> emails
 This is an implementation of 
 
-#### Files and folders ...:
+## Files and folders:
 
-#### Building:
+- `crawler.py`: System's main, responsible for handling command line parameters, reading input file, creating shared 
+    structures and firing threads.
+- `worker.py`:
+- `writer.py`:
+- `urls.py`:
+- `Dockerfile`:
+- `build/requirements.txt`:
+- `tests`: Simple HTML files and docker compose files to create docker swarm stacks with nginx serving the HTML files. 
+   See [Testing](#testing) section) for details on how to use these. 
+- `design`: PlantUML files (text-based tool for "drawing" UML diagrams) and corresponding diagrams explaining the 
+   system's design. These diagrams are included in this document (with explanations) in the [Design](#design) section.
+   
+## Building:
 
-###### Option 1: Use docker 
+### Option 1: Use docker 
 
 To simplify dependency management a Dockerfile is provided with the code such that a self contained docker image can be easily build as follow:
 
@@ -17,7 +29,7 @@ To simplify dependency management a Dockerfile is provided with the code such th
 
 The system was buit and tested with docker version 18.09.7 but given the simplicity of the Dockerfile it may work with older versions as well.
  
-###### Option 2: Python application 
+### Option 2: Python application 
 
 As a python application per-se, there is no "build", however for the application to run there is a need to install additional libraries as follow:
 
@@ -25,9 +37,9 @@ As a python application per-se, there is no "build", however for the application
 
 Which will install the BeatifulSoup version 4 library needed to extract links from HTML files. 
  
-#### Running:
+## Running:
 
-###### Option 1: Use docker 
+### Option 1: Use docker 
 
 `docker run -ti -v $(pwd):/out crawler [-f <filename> | -u <url>] -o /out/<outputfile>`
  
@@ -35,7 +47,7 @@ Which will install the BeatifulSoup version 4 library needed to extract links fr
 
 `docker run -ti crawler -h`
  
-###### Option 2: Python application 
+### Option 2: Python application 
 
 `python crawler.py  [-f <filename> | -u <url>] -o <outputfile>`
 
@@ -44,15 +56,15 @@ For a list of all supported flags type:
 `python crawler.py -h`
 
 
-#### Test Suite
+## Test Suite
 
 `TESTS_DIR=$(pwd) docker stack deploy -c circular.yml c`
 
 `docker run --network c_test -v $(pwd):/out crawler -u http://c1  -n 1 --verbose -o /out/<outputfile>`
 
-#### Design
+## Design
 
-##### Assumptions
+### Assumptions
 - In memory solution to show functionality. Should be easy to modify to a more resilient solution that uses an
   external data store
 - Initial solution may not be fully optimized for performance, but desing should consider performance 
@@ -66,7 +78,7 @@ For a list of all supported flags type:
 
 ![Flowchart of Worker threads](design/diagrams/worker02.png)
 
-Known issues
+## Known issues
 - Unneeded fetching of non-parseable files (images, movies and such)
 - Not all "local" urls seems to be properly handled (see `'Unable to categorize'` messages in logs)
 - BeatifulSoup seems to have problem parsing non english text (see `' ... confidence ...'` and 
@@ -75,3 +87,4 @@ Known issues
 - Limit queue size and add waiting when queue is full ?
 - Add mechanism to force workers to stop ?
 
+## Observations 
