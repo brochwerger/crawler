@@ -9,11 +9,13 @@ This is an implementation of
 
 - `crawler.py`: System's main, responsible for handling command line parameters, reading input file, creating shared 
     structures and firing threads.
-- `worker.py`:
-- `writer.py`:
-- `urls.py`:
-- `Dockerfile`:
-- `build/requirements.txt`:
+- `worker.py`: Code for the "worker" threads, i.e., the threads doing the heavy lifting of the crawling process:
+   fetch, parse and search
+- `writer.py`: Code for the thread responsible for writing the list of emails found to the output file
+- `urls.py`: Classes for URL objects. To simplify the code of the workers, each category of URLs (email, webpage, unknow) gets a dedicated class 
+   for handling the corresponding URLs.
+- `Dockerfile`: Use to build the crawler container
+- `build/requirements.txt`: Python dependencies. Used by Dockerfile to build container
 - `tests`: Simple HTML files and docker compose files to create docker swarm stacks with nginx serving the HTML files. 
    See [Testing](#testing) section) for details on how to use these. 
 - `design`: PlantUML files (text-based tool for "drawing" UML diagrams) and corresponding diagrams explaining the 
