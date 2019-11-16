@@ -1,6 +1,6 @@
 FROM python:3.7-alpine
 
-COPY requirements.txt /tmp/requirements.txt
+COPY build/requirements.txt /tmp/requirements.txt
 
 RUN pip install --upgrade pip && \
     pip install -r /tmp/requirements.txt
