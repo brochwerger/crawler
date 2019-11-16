@@ -1,0 +1,13 @@
+DEBUG: W#00000 working on [http://c1]
+DEBUG: W#00000 working on [http://c2]
+DEBUG: W#00001 working on [mailto:1@c1.com]
+DEBUG: Email found : mailto:1@c1.com
+DEBUG: W#00000 working on [http://c3]
+DEBUG: W#00003 working on [mailto:1@c1.com]
+DEBUG: W#00003 working on [mailto:2@c2.com]
+DEBUG: Email found : mailto:2@c2.com
+DEBUG: W#00000 working on [http://c1]
+DEBUG: W#00000 working on [mailto:1@c1.com]
+DEBUG: W#00007 working on [mailto:2@c2.com]
+DEBUG: W#00009 working on [mailto:3@c3.com]
+DEBUG: Email found : mailto:3@c3.com
