@@ -4,7 +4,6 @@ import argparse
 import logging
 import queue
 
-from urlhandler import URLHandler
 from worker import Worker
 from writer import Writer
 
