@@ -20,7 +20,7 @@ class Worker(threading.Thread):
         self.maxdepth = maxdepth
         self.max_depth_reached = max_depth_reached
 
-    def categorize(self, prevUrl, url):
+    def classify(self, prevUrl, url):
 
         parsedUrl = urllib.parse.urlparse(url)
 
@@ -73,7 +73,7 @@ class Worker(threading.Thread):
 
             logging.debug('{} working on [{}]'.format(self.name, url))
 
-            caturl = self.categorize(prevurl, url)
+            caturl = self.classify(prevurl, url)
 
             if caturl and not caturl.up2date():
                 caturl.process(depth)
