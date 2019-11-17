@@ -78,5 +78,8 @@ class Worker(threading.Thread):
             if caturl and not caturl.up2date():
                 caturl.process(depth)
 
+        logging.debug("{} finished ...".format(self.name))
+
         if self.max_depth_reached:
             self.max_depth_reached.set()
+
