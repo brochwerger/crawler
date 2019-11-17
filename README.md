@@ -102,11 +102,11 @@ network)
 
 This should produce the following list of emails:
 
-`mailto:1@c1.com`
-
-`mailto:2@c2.com`
-
-`mailto:3@c3.com`
+```
+mailto:1@c1.com
+mailto:2@c2.com
+mailto:3@c3.com
+```
 
 ### Multi-page test
 
@@ -128,15 +128,12 @@ Again, the network parameter (`--network m_test`) is a must.
 
 This should producer the following list of emails:
 
-`mailto:root@mpage.com`
-
-`mailto:absolute.page@mpage.com`
-
-`mailto:relative.page@mpage.com`
-
-`mailto:twolevels.page@mpage.com`
-
-
+```
+mailto:root@mpage.com
+mailto:absolute.page@mpage.com
+mailto:relative.page@mpage.com
+mailto:twolevels.page@mpage.com
+```
 
 ## Design
 
@@ -240,7 +237,7 @@ it not learning any new URLs
   `'... not decoded ... '` messages in logs)
 - Add monitoring thread that periodically prints status (queue sizes and such)
 - Limit queue size and add waiting when queue is full ?
-- Depth limiting mechanism only works with `nthreads == 1`. Need an alternative mechanism to force workers to stop. 
+- ~~Depth limiting mechanism only works with `nthreads == 1`. Need an alternative mechanism to force workers to stop.~~ 
 Maybe levearge the timeout capability of python queues?
 
 ## Observations 
@@ -248,25 +245,18 @@ Maybe levearge the timeout capability of python queues?
 From looking at the results after running the system a few times we can get a feeling of what needs further work.
 If we look at the numbers:
 
-`[1]$ grep working *.log | wc -l`
-
-`97742`
-
-`[2]$ wc -l *.out`
-
-` 164 total`
-
-`[3]$ grep fetch *.log | wc -l`
-
-`4277`
-
-`[4]$ grep parse *.log | wc -l`
-
-`3009`
-
-`[5]$ grep categorize *.log | wc -l`
-
-`8198`
+```shell script
+[1]$ grep working *.log | wc -l
+97742
+[2]$ wc -l *.out
+164 total
+[3]$ grep fetch *.log | wc -l
+4277
+[4]$ grep parse *.log | wc -l
+3009
+[5]$ grep categorize *.log | wc -l
+8198
+```
 
 From these numbers, we can reach the following conclusions:
 
@@ -282,33 +272,24 @@ the `mailto` tag will get most of the email addresses
 Another interesting observation is that one of the runs worked on considerable less URLs that the other but both run about the same time (around 1 hour)
 and with the same resources (the default 10 threads):
 
-`[6]$ grep working list1.log | wc -l`
-
-`55585`
-
-`[7]$ grep working list2.log | wc -l`
-
-`4130`
+```shell script
+[6]$ grep working list1.log | wc -l
+55585
+[7]$ grep working list2.log | wc -l
+4130
+```
 
 By looking at the logs of the "lazy" run we can see that the system is waiting on the download of un-parseable large files (
 (linux distributions in this case). Code to avoid this will greatly improve performance:
 
-`[8]$ grep working list2.log | tail`
- 
-`DEBUG: W#00009 working on [http://www.kick.co.il]`
-
-`DEBUG: W#00009 working on [https://www.vesty.co.il]`
-
-`DEBUG: W#00009 working on [https://download.mozilla.org/?product=firefox-stub&os=win64&lang=en-US]`
-
-`DEBUG: W#00005 working on [https://download.mozilla.org/?product=firefox-msi-latest-ssl&os=win64&lang=en-US]`
-
-`DEBUG: W#00009 working on [https://download.mozilla.org/?product=firefox-stub&os=win&lang=en-US]`
-
-`DEBUG: W#00009 working on [https://download.mozilla.org/?product=firefox-msi-latest-ssl&os=win&lang=en-US]`
-
-`DEBUG: W#00009 working on [https://download.mozilla.org/?product=firefox-latest-ssl&os=osx&lang=en-US]`
-
-`DEBUG: W#00005 working on [https://download.mozilla.org/?product=firefox-latest-ssl&os=linux64&lang=en-US]`
-
-
+```shell script
+[8]$ grep working list2.log | tail
+DEBUG: W#00009 working on [http://www.kick.co.il]
+DEBUG: W#00009 working on [https://www.vesty.co.il]
+DEBUG: W#00009 working on [https://download.mozilla.org/?product=firefox-stub&os=win64&lang=en-US]
+DEBUG: W#00005 working on [https://download.mozilla.org/?product=firefox-msi-latest-ssl&os=win64&lang=en-US]
+DEBUG: W#00009 working on [https://download.mozilla.org/?product=firefox-stub&os=win&lang=en-US]
+DEBUG: W#00009 working on [https://download.mozilla.org/?product=firefox-msi-latest-ssl&os=win&lang=en-US]
+DEBUG: W#00009 working on [https://download.mozilla.org/?product=firefox-latest-ssl&os=osx&lang=en-US]
+DEBUG: W#00005 working on [https://download.mozilla.org/?product=firefox-latest-ssl&os=linux64&lang=en-US]
+```
