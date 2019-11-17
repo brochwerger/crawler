@@ -10,13 +10,15 @@ from urls import EmailUrl, WebPageUrl
 
 class Worker(threading.Thread):
 
-    def __init__(self, id, urlqueue, emailqueue, maxdepth=-1):
+    def __init__(self, id, urlqueue, emailqueue, maxdepth=-1, max_depth_reached=None):
         threading.Thread.__init__(self)
+        self.setDaemon(True)
         self.id = id
         self.name = 'W#{:05d}'.format(self.id)
         self.urlqueue = urlqueue
         self.emailqueue = emailqueue
         self.maxdepth = maxdepth
+        self.max_depth_reached = max_depth_reached
 
     def categorize(self, prevUrl, url):
 
@@ -75,3 +77,6 @@ class Worker(threading.Thread):
 
             if caturl and not caturl.up2date():
                 caturl.process(depth)
+
+        if self.max_depth_reached:
+            self.max_depth_reached.set()
