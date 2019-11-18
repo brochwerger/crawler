@@ -9,6 +9,19 @@ Example of the problem:
 
 points to binary `firefox-70.0.1.tar.bz2` but no indication of it in the url
 
+The extension approach is clearly not good, instead need to fetch content-type, preferably
+without fetching the entire resource. 
+
+`urllib.request.urlopen('<URL>').info.get_content_type()` ???
+
+```python
+import urllib.request
+with urllib.request.urlopen('http://www.google.com') as response:
+    info = response.info()
+    print(info.get_content_type())      # -> text/html
+    print(info.get_content_maintype())  # -> text
+    print(info.get_content_subtype())   # -> html
+```
 
 ## maxdepth
 
