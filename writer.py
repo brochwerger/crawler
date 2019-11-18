@@ -14,7 +14,9 @@ class Writer(threading.Thread):
 
     def run(self):
         msg = None
-        while msg != "<EXIT>":
+        while True:
             msg = self.emailqueue.get()
+            if msg == "<EXIT>":
+                break
             self.out.write(msg+'\n')
         self.out.close()
