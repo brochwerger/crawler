@@ -30,7 +30,7 @@ kills all workers still active.
 
 - Does it makes sense to let them all finish?
 - If not, should workers be properly stopped (like writer) so they finish with the 
-url processing currently in progress 
+url processing currently in progress - YES, otherwise we may lose emails already found
 
 ## Stucked at the end
 

@@ -214,7 +214,8 @@ achieve a much robust, scalable and better performing system.
 #### Suggested changes (system-wide):
 1. Use standalone processes instead of python Threads. Each such process can be packaged as a container
 2. Replace python queues with a standalone distributed queuing system, such as `RabbitMQ` or `Kafka`,
-3. Replace python dictionaries with a standalone key-value-store system, such as `Redis` or `Memcached`
+3. Replace python dictionaries with a standalone key-value-store system, such as `Redis` or `Memcached`. 
+**NOTE:** Added support (version 1.2) for redis based KVS, see [Redis KVS](redis_kvs) section for details
 
 With these changes in place the system is now made of several service layers (see modified object diagram below), where 
 each service can be deployed, scaled and managed independently. For maximum performance, scalability
@@ -293,3 +294,16 @@ DEBUG: W#00009 working on [https://download.mozilla.org/?product=firefox-msi-lat
 DEBUG: W#00009 working on [https://download.mozilla.org/?product=firefox-latest-ssl&os=osx&lang=en-US]
 DEBUG: W#00005 working on [https://download.mozilla.org/?product=firefox-latest-ssl&os=linux64&lang=en-US]
 ```
+# Redis KVS
+
+Added suport for REDIS KVS which givea us a more resilient and scalable solution, and enables suport for dynamic pages.
+
+To test use the circular_with_redis stack as follow:
+
+To deploy the stack, type (while in the crawler directory):
+
+`TESTS_DIR=$(pwd)/tests docker stack deploy -c tests/circular_with_redis.yml cr`
+
+the run the crawler container as follow:
+
+`docker run -d --network cr_test -v $(pwd)/runs:/tmp crawler -u http://c1 -o /tmp/<output> --logfile /tmp/<logfile> --verbose --redis redis [--aging <url aging in minutes>]`

@@ -1,0 +1,45 @@
+version: '3.7'
+
+services:
+
+  redis:
+    image: redis
+    networks:
+      - test
+    ports:
+      - "6379:6379"
+
+  c1:
+    image: nginx
+
+    networks:
+      - test
+
+    volumes:
+      - ${TESTS_DIR}/circular/c1:/usr/share/nginx/html
+
+    ports:
+      - "80:80"
+
+  c2:
+    image: nginx
+
+    networks:
+      - test
+
+    volumes:
+      - ${TESTS_DIR}/circular/c2:/usr/share/nginx/html
+
+  c3:
+    image: nginx
+
+    networks:
+      - test
+
+    volumes:
+      - ${TESTS_DIR}/circular/c3:/usr/share/nginx/html
+
+networks:
+  test:
+    driver: overlay
+    attachable: true
