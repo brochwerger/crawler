@@ -215,7 +215,7 @@ achieve a much robust, scalable and better performing system.
 1. Use standalone processes instead of python Threads. Each such process can be packaged as a container
 2. Replace python queues with a standalone distributed queuing system, such as `RabbitMQ` or `Kafka`,
 3. Replace python dictionaries with a standalone key-value-store system, such as `Redis` or `Memcached`. 
-**NOTE:** Added support (version 1.2) for redis based KVS, see [Redis KVS](redis_kvs) section for details
+**NOTE:** Added support (version 1.2) for redis based KVS, see the [Redis](redis) section below for details. 
 
 With these changes in place the system is now made of several service layers (see modified object diagram below), where 
 each service can be deployed, scaled and managed independently. For maximum performance, scalability
@@ -239,7 +239,7 @@ it not learning any new URLs
 - Add monitoring thread that periodically prints status (queue sizes and such)
 - Limit queue size and add waiting when queue is full ?
 - ~~Depth limiting mechanism only works with `nthreads == 1`. Need an alternative mechanism to force workers to stop.~~ 
-Maybe levearge the timeout capability of python queues?
+Maybe leverage the timeout capability of python queues?
 
 ## Observations 
 
@@ -294,7 +294,7 @@ DEBUG: W#00009 working on [https://download.mozilla.org/?product=firefox-msi-lat
 DEBUG: W#00009 working on [https://download.mozilla.org/?product=firefox-latest-ssl&os=osx&lang=en-US]
 DEBUG: W#00005 working on [https://download.mozilla.org/?product=firefox-latest-ssl&os=linux64&lang=en-US]
 ```
-# Redis KVS
+# Redis
 
 Added suport for REDIS KVS which givea us a more resilient and scalable solution, and enables suport for dynamic pages.
 
