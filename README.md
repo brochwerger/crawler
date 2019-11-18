@@ -170,7 +170,7 @@ of synchronizing them.
 
 The components, as well as their relationships (operations) are shown in the following figure:
 
-![Components of solution](design/diagrams/crawler_obj_current.png)
+![Components of solution](design/diagrams/crawler_obj_1_0.png)
 
 Initially, the system is implemented as a multi-threaded python application, with python queues and python dictionaries 
 as the key-value-stores.
@@ -192,7 +192,7 @@ With this approach, the `workers` invoke methods of an `AbstractUrl` class, wher
 instance of one the the URL concrete classes available, and the functionality specific to each URL type is implemented in
 the concrete classes. The class diagram for this is shown in the following figure:
 
-![URLs Class diagram](design/diagrams/urls_class.png)
+![URLs Class diagram](design/diagrams/urls_class_1_0.png)
 
 With this approach, not only does the `worker` code becomes cleaner, but it not very easy to extend system 
 to additional URL types by adding a new concrete derive class.
@@ -307,3 +307,12 @@ To deploy the stack, type (while in the crawler directory):
 the run the crawler container as follow:
 
 `docker run -d --network cr_test -v $(pwd)/runs:/tmp crawler -u http://c1 -o /tmp/<output> --logfile /tmp/<logfile> --verbose --redis redis [--aging <url aging in minutes>]`
+
+The redis KVS is shared for all url types, but only the WebPageUrl uses the expiring capabilites of entries. Hence, 
+dynamic content is now supported, while still keeping unique emails over time. The update
+(simplified) component diagram is:
+
+![Components of proposed solution](design/diagrams/crawler_obj_redis.png)
+
+and the corresponding URLs class diagram is:
+![URLs Class diagram](design/diagrams/urls_class_1_x.png)

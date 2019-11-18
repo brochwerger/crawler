@@ -1,9 +1,23 @@
 @startuml
 
 abstract class AbstractUrl {
-  process()
+  kvs
   is_uptodate()
   enqueue()
+  save()
+  {abstract} process()
+}
+
+class WebPageUrl {
+ process()
+}
+
+class EmailUrl {
+ process()
+}
+
+class UnknownUrl {
+ process()
 }
 
 AbstractUrl <|-- EmailUrl

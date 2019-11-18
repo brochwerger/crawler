@@ -1,0 +1,45 @@
+@startuml
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/release/1-0/C4_Component.puml
+'LAYOUT_AS_SKETCH()
+'LAYOUT_WITH_LEGEND()
+
+Boundary(swc, 'Simple Web Crawler') {
+
+    Container(crawler, "crawler", "Crawler Control")
+    Container(wrk1, "Worker 1", "1/n")
+    Container(wrk2, "Worker 2", "2/n")
+    Container(wrkn, "Worker n", "n/n")
+
+    Container(Writer, "Email Writer", "")
+
+    Component(emailQueue, "email queue", "Queue for unprocessed emails")
+    Component(urlQueue, "URL queue", "Queue for unprocessed URLs")
+
+}
+
+SystemDb(redis, "Redis KVS", "If redis not available\nfall back to python dictionay")
+
+System_Ext(urlfile, "URLs file", "[input]")
+System_Ext(emailfile, "email file", "[output]")
+
+Rel(crawler, urlQueue, "Put")
+Rel(crawler, urlfile, "Read")
+
+Rel(wrk1, urlQueue, "Put/Get")
+Rel(wrk2, urlQueue, "Put/Get")
+Rel(wrkn, urlQueue, "Put/Get")
+
+Rel(wrk1, emailQueue, "Put")
+Rel(wrk2, emailQueue, "Put")
+Rel(wrkn, emailQueue, "Put")
+
+Rel_U(wrk1, redis, "Search/Append")
+Rel_U(wrk2, redis, "Search/Append")
+Rel_U(wrkn, redis, "Search/Append")
+
+Rel_U(Writer, emailQueue, "Get")
+Rel(Writer, emailfile, "Append")
+
+
+@enduml
