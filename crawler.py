@@ -3,8 +3,8 @@
 import argparse
 import logging
 import queue
+from threading import Event
 
-from urlhandler import URLHandler
 from worker import Worker
 from writer import Writer
 
@@ -24,10 +24,12 @@ def crawler(args):
             for url in file:
                 urlqueue.put([None, url, 1])
 
+    max_depth_reached = Event() if args.maxdepth > 0 else None
+
     # Start the worker threads
     workers = []
     for w in range(args.nthreads):
-        worker = Worker(w, urlqueue, emailqueue, args.maxdepth if args.maxdepth else -1)
+        worker = Worker(w, urlqueue, emailqueue, args.maxdepth if args.maxdepth else -1, max_depth_reached)
         worker.start()
         workers.append(worker)
 
@@ -35,13 +37,20 @@ def crawler(args):
     writer = Writer(args.output, emailqueue)
     writer.start()
 
-    # Wait for all worker threads to finish (which may happen if we limit the depth of the search)
-    for t in workers:
-        t.join()
+    if max_depth_reached:
+        max_depth_reached.wait()
+        logging.debug("One of the workers reached maximum depth -- clean up and exit !!!")
+    else:
+        # Wait for all worker threads to finish (which may happen if we limit the depth of the search)
+        for t in workers:
+            t.join()
+        logging.debug("All workers finished -- clean up and exit !!!")
 
     # All worker threads have finished --> force the writer thread to finish too
     writer.stop()
     writer.join()
+
+
 
 if __name__ == "__main__":
 

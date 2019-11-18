@@ -6,7 +6,7 @@ repeat
 
 ':Increase depth;
 
-:url-obj = Categorize(url);
+:url-obj = Classify(url);
 
 if (url-obj is new or changed) then (yes)
     :Process(url-obj);

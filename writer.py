@@ -10,10 +10,11 @@ class Writer(threading.Thread):
         self.out = open(self.filename, "a+", buffering=1)
 
     def stop(self):
-        self.keepgoing = False
+        self.emailqueue.put("<EXIT>")
 
     def run(self):
-        while self.keepgoing:
+        msg = None
+        while msg != "<EXIT>":
             msg = self.emailqueue.get()
             self.out.write(msg+'\n')
         self.out.close()

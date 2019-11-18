@@ -1,6 +1,9 @@
 import logging
-import urllib
+import threading
+import urllib.request
+import urllib.error
 from abc import ABC, abstractmethod
+import time
 
 from bs4 import BeautifulSoup
 
@@ -26,9 +29,6 @@ class AbstractUrl(ABC):
 
 class EmailUrl(AbstractUrl):
 
-    def _init__(self, url, queue=None):
-        super()
-
     processed = {}
 
     def process(self, depth):
@@ -44,11 +44,24 @@ class WebPageUrl(AbstractUrl):
 
     processed = {}
 
-    # def _init__(self, url, queue):
-    #     GenericUrl(url, queue)
+    def __init__(self, url, queue=None):
+        AbstractUrl.__init__(self, url, queue)
+        # self.cleaner = self.Cleaner()
+        # self.cleaner.start()
+
+    # class Cleaner(threading.Thread):
+    #
+    #     def __init__(self):
+    #         threading.Thread.__init__(self)
+    #         self.keepongoing = True
+    #
+    #     def run(self):
+    #         while (self.keepongoing):
+    #             logging.debug("KV size currently is {}".format(len(WebPageUrl.processed)))
+    #             time.sleep(10)
 
     def process(self, depth):
-        # logging.debug("Web Page: {}".format(self.url))
+        logging.debug("Processing web page: {}".format(self.url))
         try:
             with urllib.request.urlopen(self.url) as response:
                 html = response.read()
@@ -67,7 +80,3 @@ class WebPageUrl(AbstractUrl):
 
     def up2date(self):
         return self.url in WebPageUrl.processed.keys()
-
-
-
-
