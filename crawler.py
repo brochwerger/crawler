@@ -24,12 +24,12 @@ def crawler(args):
             for url in file:
                 urlqueue.put([None, url, 1])
 
-    max_depth_reached = Event() if args.maxdepth > 0 else None
+    max_depth_reached = Event() if args.maxdepth else None
 
     # Start the worker threads
     workers = []
     for w in range(args.nthreads):
-        worker = Worker(w, urlqueue, emailqueue, args.maxdepth if args.maxdepth else -1, max_depth_reached)
+        worker = Worker(w, urlqueue, emailqueue, args.maxdepth if args.maxdepth else -1, max_depth_reached, args.redis, args.aging)
         worker.start()
         workers.append(worker)
 
@@ -59,10 +59,13 @@ if __name__ == "__main__":
     parser.add_argument("--maxdepth", type=int)
     parser.add_argument("-i", "--input") #, required=True)
     parser.add_argument("-u", "--url") #, required=True)
-    parser.add_argument("-o", "--output", default="emails_found.txt")
+    parser.add_argument("-o", "--output", required=True) #default="emails_found.txt")
     parser.add_argument("--verbose", action='store_true')
     parser.add_argument("--quiet", action='store_true')
     parser.add_argument("--logfile")
+
+    parser.add_argument("--redis")
+    parser.add_argument("--aging", type=int, default=60*24) # URL aging in MINUTES, default 1 day
 
     args = parser.parse_args()
 

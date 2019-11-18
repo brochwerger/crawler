@@ -10,7 +10,7 @@ from urls import EmailUrl, WebPageUrl
 
 class Worker(threading.Thread):
 
-    def __init__(self, id, urlqueue, emailqueue, maxdepth=-1, max_depth_reached=None):
+    def __init__(self, id, urlqueue, emailqueue, maxdepth=-1, max_depth_reached=None, redis=None, aging=-1):
         threading.Thread.__init__(self)
         self.setDaemon(True)
         self.id = id
@@ -19,6 +19,8 @@ class Worker(threading.Thread):
         self.emailqueue = emailqueue
         self.maxdepth = maxdepth
         self.max_depth_reached = max_depth_reached
+        self.redis = redis
+        self.aging = aging
 
     def classify(self, prevUrl, url):
 
@@ -41,7 +43,7 @@ class Worker(threading.Thread):
 
         # Is URL scheme https or http - probably it is a properly build URL
         if parsedUrl.scheme in ["http", "https"]:
-            return WebPageUrl(url, self.urlqueue)
+            return WebPageUrl(url, self.urlqueue, self.redis, self.aging)
 
         # If scheme is empty, it may be a link to a page local to previous resource, hence we try to build a full URL
         # combinaning data from previous (if available) URL and current URL
@@ -52,7 +54,7 @@ class Worker(threading.Thread):
                 url = '{}://{}{}'.format(parsedPrevUrl.scheme, parsedPrevUrl.netloc, parsedUrl.path)
             else:
                 url = '{}://{}/{}'.format(parsedPrevUrl.scheme, parsedPrevUrl.netloc, parsedUrl.path)
-            return WebPageUrl(url, self.urlqueue)
+            return WebPageUrl(url, self.urlqueue, self.redis, self.aging)
 
         # If none of the above, then print out both previous and current parsed URLs to help improve the code
         else:
@@ -75,7 +77,7 @@ class Worker(threading.Thread):
 
             caturl = self.classify(prevurl, url)
 
-            if caturl and not caturl.up2date():
+            if caturl and not caturl.is_up2date():
                 caturl.process(depth)
 
         logging.debug("{} finished ...".format(self.name))

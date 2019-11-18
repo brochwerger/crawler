@@ -1,64 +1,58 @@
 import logging
-import threading
 import urllib.request
 import urllib.error
+import redis
+
 from abc import ABC, abstractmethod
-import time
-
 from bs4 import BeautifulSoup
-
 
 class AbstractUrl(ABC):
 
-    def __init__(self, url, queue=None):
+    kvs = None
+
+    def __init__(self, url, queue=None, redissrv=None, aging=-1):
+        super().__init__()
         self.url = url
         self.queue = queue
-        super().__init__()
+        self.redis_server = redissrv
+        self.aging_in_minutes = aging
 
-    @abstractmethod
-    def process(self, depth):
-        pass
+        if AbstractUrl.kvs == None:
+            if self.redis_server:
+                AbstractUrl.kvs = redis.Redis(host=self.redis_server, port=6379, db=0)
+                AbstractUrl.kvs.flushdb()
+            else:
+                AbstractUrl.kvs = {}
 
-    @abstractmethod
-    def up2date(self):
-        pass
+    def is_up2date(self):
+        if type(AbstractUrl.kvs) is redis.Redis:
+            v = self.kvs.get(self.url)
+            return  v != None
+        else:
+            return self.url in self.kvs.keys()
 
     def enqueue(self, x):
         if self.queue:
             self.queue.put(x)
 
-class EmailUrl(AbstractUrl):
+    def save(self, timeout=None):
+        if type(AbstractUrl.kvs) is redis.Redis:
+            AbstractUrl.kvs.set(self.url, self.url, ex=(timeout*60) if timeout else None) # NOTE: EX in seconds, timeout in minutes
+        else:
+            AbstractUrl.kvs[self.url] = self.url
 
-    processed = {}
+    @abstractmethod
+    def process(self, depth):
+        pass
+
+class EmailUrl(AbstractUrl):
 
     def process(self, depth):
         logging.debug("Email found : {}".format(self.url))
         self.enqueue(self.url)
-
-        EmailUrl.processed[self.url] = self.url
-
-    def up2date(self):
-        return self.url in EmailUrl.processed.keys()
+        self.save()
 
 class WebPageUrl(AbstractUrl):
-
-    processed = {}
-
-    def __init__(self, url, queue=None):
-        AbstractUrl.__init__(self, url, queue)
-        # self.cleaner = self.Cleaner()
-        # self.cleaner.start()
-
-    # class Cleaner(threading.Thread):
-    #
-    #     def __init__(self):
-    #         threading.Thread.__init__(self)
-    #         self.keepongoing = True
-    #
-    #     def run(self):
-    #         while (self.keepongoing):
-    #             logging.debug("KV size currently is {}".format(len(WebPageUrl.processed)))
-    #             time.sleep(10)
 
     def process(self, depth):
         logging.debug("Processing web page: {}".format(self.url))
@@ -76,7 +70,4 @@ class WebPageUrl(AbstractUrl):
         except:
             logging.error("Unable to parse [{}]".format(self.url))
 
-        WebPageUrl.processed[self.url] = self.url
-
-    def up2date(self):
-        return self.url in WebPageUrl.processed.keys()
+        self.save(timeout=self.aging_in_minutes)
