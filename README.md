@@ -213,9 +213,10 @@ achieve a much robust, scalable and better performing system.
 
 #### Suggested changes (system-wide):
 1. Use standalone processes instead of python Threads. Each such process can be packaged as a container
-2. Replace python queues with a standalone distributed queuing system, such as `RabbitMQ` or `Kafka`,
-3. Replace python dictionaries with a standalone key-value-store system, such as `Redis` or `Memcached`. 
-**NOTE:** Added support (version 1.2) for redis based KVS, see the [Redis](redis) section below for details. 
+2. ~~Replace python queues with a standalone distributed queuing system, such as `RabbitMQ` or `Kafka`,~~
+**NOTE:** Added support (version >= 1.5) for NATS (https://nats.io) based queues. see [NATS](nats-based-queueing) section for details.
+3. ~~Replace python dictionaries with a standalone key-value-store system, such as `Redis` or `Memcached`.~~ 
+**NOTE:** Added support (version > 1.2) for redis based KVS, see the [Redis](redis) section for details. 
 
 With these changes in place the system is now made of several service layers (see modified object diagram below), where 
 each service can be deployed, scaled and managed independently. For maximum performance, scalability
@@ -332,3 +333,9 @@ For md5 based validation the 'WebPageUrl' was changed. The latest class diagram 
 
 
 As usual, it is a **tradeoff** ...
+
+
+# NATS based queueing
+
+https://nats.io
+
