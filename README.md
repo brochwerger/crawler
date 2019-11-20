@@ -315,14 +315,20 @@ dynamic content is now supported, while still keeping unique emails over time. T
 ![Components of proposed solution](design/diagrams/crawler_obj_redis.png)
 
 and the corresponding URLs class diagram is:
-![URLs Class diagram](design/diagrams/urls_class_1_x.png)
+
+![URLs Class diagram](design/diagrams/urls_class_1_3.png)
 
 # Comments on dynamic content
 
 Two approaches to support dynamic content have been added:
 
-1. The aging solution (1.3), enabled by redis expiration capabiliy, will revisit pages after a certain period which means changed pages will be handled, however it will also revisit static pages *and all refered URLs*
+1. The aging solution (1.3), enabled by redis expiration capabiliy, will revisit pages after a certain period which means changed pages will be handled, however it will also revisit static pages **and all refered URLs**
 
 2. Fetch page, calcute md5 digest and then use that to determine whether a page has changed or not (1.4). This will avoid recursive crawling of static pages which maybe be good (if root is static all refered content is static) or bad (root hasn't changed, we will may miss refered updated content. In addition, this approach requires to fetch pages which may not be needed after all.
 
-As usual, it is a tradeoff ...
+For md5 based validation the 'WebPageUrl' was changed. The latest class diagram now is:
+
+![URLs Class diagram](design/diagrams/urls_class_1_4.png)
+
+
+As usual, it is a **tradeoff** ...

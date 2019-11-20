@@ -9,6 +9,8 @@ abstract class AbstractUrl {
 }
 
 class WebPageUrl {
+ is_uptodate()
+ save()
  process()
 }
 
