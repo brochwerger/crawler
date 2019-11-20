@@ -50,6 +50,9 @@ class WebPageUrl(AbstractUrl):
         self.md5 = hashlib.blake2b()
         self.aging=aging
 
+    def is_up2date(self):
+        return False
+
     def save(self):
         AbstractUrl.kvs.put(self.url, self.md5.digest(), aging=self.aging)
 
