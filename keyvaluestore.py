@@ -26,9 +26,9 @@ class RedisKVS(BasicKVS):
 
     def put(self, key, value, aging=None):
         # aging parameter in minutes, redis expect the expiration period in seconds
-        RedisKVS.kvs.set(self.url, self.url, ex=(aging * 60) if aging else None)
+        RedisKVS.kvs.set(key, value, ex=(aging * 60) if aging else None)
 
     def get(self, key):
-        return RedisKVS.kvs.get(self.url)
+        return RedisKVS.kvs.get(key)
 
 
