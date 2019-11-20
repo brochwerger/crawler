@@ -4,7 +4,8 @@ import urllib.parse
 import logging
 import os.path
 
-from urls import EmailUrl, WebPageUrl
+from urls import EmailUrl, WebPageUrl, AbstractUrl
+
 
 # IGNORE_EXTENSIONS = ['.jpg', '.png', '.mp4']
 
@@ -22,7 +23,7 @@ class Worker(threading.Thread):
         self.redis = redis
         self.aging = aging
 
-    def classify(self, prevUrl, url):
+    def classify(self, prevUrl: str, url: str) -> AbstractUrl:
 
         parsedUrl = urllib.parse.urlparse(url)
 
