@@ -26,16 +26,14 @@ Boundary(queuing, 'Queuing Service') {
 }
 
 Boundary(storing, 'Storing Service') {
-    SystemDb(listOfprocessedUrls, "Processed URLs", "")
-    SystemDb(listOfRejectedUrls, "Rejected URLs", "")
-    SystemDb(listOfknownEmails, "Known emails", "")
+    SystemDb(kvs, "KVS", "")
 }
 
 System_Ext(urlfile, "URLs file", "[input]")
 System_Ext(emailfile, "email file", "[output]")
 
 Rel(crawler, urlQueue, "Put")
-Rel(crawler, urlfile, "Read")
+Rel_R(crawler, urlfile, "Read")
 
 Rel(wrk1, urlQueue, "Put/Get")
 Rel(wrk2, urlQueue, "Put/Get")
@@ -45,17 +43,19 @@ Rel(wrk1, emailQueue, "Put")
 Rel(wrk2, emailQueue, "Put")
 Rel(wrkn, emailQueue, "Put")
 
-Rel_U(wrk1, listOfprocessedUrls, "Search/Append")
-Rel_U(wrk2, listOfprocessedUrls, "Search/Append")
-Rel_U(wrkn, listOfprocessedUrls, "Search/Append")
+Rel_U(wrk1, kvs, "Search/Append")
+Rel_U(wrk2, kvs, "Search/Append")
+Rel_U(wrkn, kvs, "Search/Append")
 
-Rel_U(wrk1, listOfRejectedUrls, "Search/Append")
-Rel_U(wrk2, listOfRejectedUrls, "Search/Append")
-Rel_U(wrkn, listOfRejectedUrls, "Search/Append")
+Rel_U(wrk1, kvs, "Search/Append")
+Rel_U(wrk2, kvs, "Search/Append")
+Rel_U(wrkn, kvs, "Search/Append")
 
-emailQueue --> Writer
-Rel(Writer,listOfknownEmails, "Search/Append")
-Rel(Writer, emailfile, "Append")
+Rel_U(Writer,kvs, "Search/Append")
+
+Rel_U(Writer, emailQueue, "Get")
+Rel_R(Writer, emailfile, "Append")
+
 
 
 @enduml
