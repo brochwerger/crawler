@@ -14,6 +14,7 @@ class AbstractUrl(ABC):
 
     def __init__(self, url, queue=None, redissrv=None):
         super().__init__()
+        self.logger = logging.getLogger('crawler.{}'.format(self.__class__.__name__))
         self.url = url
         self.queue = queue
         self.redis_server = redissrv
@@ -38,7 +39,7 @@ class EmailUrl(AbstractUrl):
         AbstractUrl.kvs.put(self.url, self.url)
 
     def process(self, depth):
-        logging.debug("Email found : {}".format(self.url))
+        self.logger.debug("Email found : {}".format(self.url))
         self.enqueue(self.url)
         self.save()
 
@@ -58,7 +59,7 @@ class WebPageUrl(AbstractUrl):
 
     def process(self, depth):
 
-        logging.debug("Processing web page: {}".format(self.url))
+        self.logger.debug("Processing web page: {}".format(self.url))
         try:
 
             with urllib.request.urlopen(self.url) as response:
@@ -72,12 +73,12 @@ class WebPageUrl(AbstractUrl):
                         href = link.get('href')
                         self.enqueue([self.url, href, depth+1])
                 except:
-                    logging.error("Unable to parse [{}]".format(self.url))
+                    self.logger.error("Unable to parse [{}]".format(self.url))
 
                 # else:
-                #     logging.debug("Unchanged web page [{}] - aborting".format(self.url))
+                #     self.logger.debug("Unchanged web page [{}] - aborting".format(self.url))
 
         except urllib.error.URLError:
-            logging.error("Unable to fetch [{}]".format(self.url))
+            self.logger.error("Unable to fetch [{}]".format(self.url))
 
         self.save()

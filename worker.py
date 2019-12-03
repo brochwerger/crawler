@@ -6,16 +6,13 @@ import os.path
 
 from urls import EmailUrl, WebPageUrl, AbstractUrl
 
-
-# IGNORE_EXTENSIONS = ['.jpg', '.png', '.mp4']
-
 class Worker(threading.Thread):
 
     def __init__(self, id, urlqueue, emailqueue, maxdepth=-1, max_depth_reached=None, redis=None, aging=-1):
         threading.Thread.__init__(self)
+
+        self.logger = logging.getLogger('crawler.Worker.{:05d}'.format(id))
         self.setDaemon(True)
-        self.id = id
-        self.name = 'W#{:05d}'.format(self.id)
         self.urlqueue = urlqueue
         self.emailqueue = emailqueue
         self.maxdepth = maxdepth
@@ -37,10 +34,10 @@ class Worker(threading.Thread):
         #     if path != '':
         #         x = os.path.basename(path).split('.')
         #         if len(x) == 2 and x[1] in IGNORE_EXTENSIONS:
-        #             logging.debug("Skipping [{}]".format(url))
+        #             self.logger.debug("Skipping [{}]".format(url))
         #             return None
         # except:
-        #     logging.debug("Something is broken with parsed data: {}".format(parsedUrl))
+        #     self.logger.debug("Something is broken with parsed data: {}".format(parsedUrl))
 
         # Is URL scheme https or http - probably it is a properly build URL
         if parsedUrl.scheme in ["http", "https"]:
@@ -59,11 +56,11 @@ class Worker(threading.Thread):
 
         # If none of the above, then print out both previous and current parsed URLs to help improve the code
         else:
-            logging.debug("Unable to categorize:")
+            self.logger.debug("Unable to categorize:")
             if prevUrl:
                 parsedPrevUrl = urllib.parse.urlparse(prevUrl)
-                logging.debug(parsedPrevUrl)
-            logging.debug(parsedUrl)
+                self.logger.debug(parsedPrevUrl)
+            self.logger.debug(parsedUrl)
             return None
 
     def run(self):
@@ -74,14 +71,14 @@ class Worker(threading.Thread):
 
             prevurl, url, depth = self.urlqueue.get()
 
-            logging.debug('{} working on [{}]'.format(self.name, url))
+            self.logger.debug('Working on [{}]'.format(url))
 
             caturl = self.classify(prevurl, url)
 
             if caturl and not caturl.is_up2date():
                 caturl.process(depth)
 
-        logging.debug("{} finished ...".format(self.name))
+        self.logger.debug("Finished ...")
 
         if self.max_depth_reached:
             self.max_depth_reached.set()
