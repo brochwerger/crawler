@@ -27,7 +27,7 @@ class RabbitMQueue(BasicQueue):
         self.channel.queue_declare(queue=self.queue)
 
     def put(self, value):
-        self.channel.basic_publish(exchange='', routing_key=self.queue, body=value)
+        self.channel.basic_publish(exchange='', routing_key=self.queue, body=pickle.dumps(value))
 
     def get(self):
         data = None
@@ -43,7 +43,7 @@ if __name__ == "__main__":
 
     if len(sys.argv) >= 2 and sys.argv[1] == 'send':
         print(" [x] Sent 'Hello World!'")
-        rmq.put(pickle.dumps(sys.argv[1:]))
+        rmq.put(sys.argv[1:])
     else:
         message = rmq.get()
         print(message)
