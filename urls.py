@@ -50,8 +50,8 @@ class WebPageUrl(AbstractUrl):
         self.md5 = hashlib.blake2b()
         self.aging=aging
 
-    def is_up2date(self):
-        return False
+    # def is_up2date(self):
+    #     return False
 
     def save(self):
         AbstractUrl.kvs.put(self.url, self.md5.digest(), aging=self.aging)
@@ -60,23 +60,24 @@ class WebPageUrl(AbstractUrl):
 
         logging.debug("Processing web page: {}".format(self.url))
         try:
+
             with urllib.request.urlopen(self.url) as response:
                 html = response.read()
                 self.md5.update(html)
-                digest = self.md5.digest()
-                if digest != AbstractUrl.kvs.get(self.url):
-                    try:
-                        soup = BeautifulSoup(html, 'html.parser')
-                        for link in soup.find_all('a'):
-                            href = link.get('href')
-                            self.enqueue([self.url, href, depth+1])
-                    except:
-                        logging.error("Unable to parse [{}]".format(self.url))
-                else:
-                    logging.debug("Unchanged web page [{}] - aborting".format(self.url))
+                # digest = self.md5.digest()
+                # if digest != AbstractUrl.kvs.get(self.url):
+                try:
+                    soup = BeautifulSoup(html, 'html.parser')
+                    for link in soup.find_all('a'):
+                        href = link.get('href')
+                        self.enqueue([self.url, href, depth+1])
+                except:
+                    logging.error("Unable to parse [{}]".format(self.url))
+
+                # else:
+                #     logging.debug("Unchanged web page [{}] - aborting".format(self.url))
 
         except urllib.error.URLError:
             logging.error("Unable to fetch [{}]".format(self.url))
-
 
         self.save()
