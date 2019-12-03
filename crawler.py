@@ -19,6 +19,8 @@ def crawler(args):
     if args.rabbitmq:
         urlqueue = RabbitMQueue(server=args.rabbitmq, queue='urls')
         emailqueue = RabbitMQueue(server=args.rabbitmq, queue='emails')
+        # urlqueue = RabbitMQueue(server='localhost', queue='urls')
+        # emailqueue = RabbitMQueue(server='localhost', queue='emails')
     else:
         urlqueue = queue.Queue()
         emailqueue = queue.Queue()
